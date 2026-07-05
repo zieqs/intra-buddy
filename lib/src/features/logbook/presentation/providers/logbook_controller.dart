@@ -28,7 +28,7 @@ class LogbookController extends AsyncNotifier<List<LogbookWeek>> {
   Future<void> toggleSubmitted(int id, bool submitted) async {
     final repo = ref.read(logbookRepositoryProvider);
     state = await AsyncValue.guard(() async {
-      final current = [...state.value ?? []];
+      final current = [...state.value ?? <LogbookWeek>[]];
       final index = current.indexWhere((w) => w.id == id);
       if (index != -1) {
         current[index] = LogbookWeek(

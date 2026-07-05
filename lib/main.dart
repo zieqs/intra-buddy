@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'src/core/constants/app_constants.dart';
 import 'src/app/intra_buddy_app.dart';
@@ -20,5 +21,9 @@ void main() async {
 
   await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseAnonKey);
 
-  runApp(const IntraBuddyApp());
+  runApp(
+    const ProviderScope(
+      child: IntraBuddyApp(),
+    ),
+  );
 }

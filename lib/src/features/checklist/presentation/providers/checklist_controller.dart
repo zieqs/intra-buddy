@@ -30,7 +30,7 @@ class ChecklistController extends AsyncNotifier<List<ChecklistItem>> {
   Future<void> toggleItem(int checklistId, bool completed) async {
     final repo = ref.read(checklistRepositoryProvider);
     state = await AsyncValue.guard(() async {
-      final current = [...state.value ?? []];
+      final current = [...state.value ?? <ChecklistItem>[]];
       final index = current.indexWhere((i) => i.id == checklistId);
       if (index != -1) {
         current[index] = ChecklistItem(
