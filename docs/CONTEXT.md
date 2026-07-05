@@ -1,4 +1,4 @@
-# INTRA Buddy Mobile — System Summary & Rebuild Blueprint
+# INTRA Buddy Mobile — System Summary
 
 ---
 
@@ -6,13 +6,14 @@
 
 | Field | Value |
 |-------|-------|
-| **Name** | `intra_buddy_mobile` |
+| **Name** | `intra_buddy_mobile_v2` |
+| **Repository** | `github.com/zieqs/intra-buddy` |
 | **Version** | `0.1.0+1` |
 | **Description** | Student-facing mobile app for UniKL internship management |
-| **Platform** | Flutter (iOS, Android, web, desktop) |
+| **Platform** | Flutter (iOS, Android) |
 | **Primary audience** | UniKL students enrolled in industrial training (INTRA) |
 
-**Purpose:** Help students track internship tasks — milestone checklists, job applications, weekly logbook submissions(status only not a place to submit the logbooks), document wallet, notifications, and a FAQ-based chatbot assistant.
+**Purpose:** Help students track internship tasks — milestone checklists, job applications, weekly logbook submissions (status only, not a place to submit the logbooks), document management, notifications, and a FAQ-based chatbot assistant.
 
 ---
 
@@ -22,7 +23,7 @@ This is a **two-person team project** with a shared Supabase backend:
 
 | Component | Repo | Responsibility | Built by |
 |-----------|------|----------------|----------|
-| Mobile App | `intra_buddy_mobile` | Student-facing features | You |
+| Mobile App | `zieqs/intra-buddy` | Student-facing features | You |
 | Web Dashboard | (separate repo) | Admin/coordinator tools | Teammate |
 
 **In scope (mobile app):**
@@ -31,9 +32,11 @@ This is a **two-person team project** with a shared Supabase backend:
 - INTRA milestone checklist
 - Job application tracker
 - FAQ-based chatbot assistant
-- Digital wallet (document uploads) *need to change the Digital Wallet name to something else, not sure yet*
+- My Documents (file uploads via Supabase Storage)
 - Notifications inbox
 - Weekly logbook status
+- Profile view/edit
+- Settings + sign out
 
 **Out of scope (web dashboard):**
 - FAQ management (CRUD)
@@ -67,18 +70,18 @@ Both apps share the same Supabase backend (Postgres, Auth, Realtime, Storage).
 | `supabase_flutter` | ^2.12.4 | Supabase client for Flutter |
 | `supabase` | ^2.10.4 | Core Supabase Dart package |
 | `flutter_riverpod` | ^3.3.1 | State management |
-| `riverpod_annotation` | ^4.0.2 | Riverpod code generation |
+| `riverpod_annotation` | ^4.0.2 | Riverpod code generation (not currently used) |
 | `hooks_riverpod` | ^3.3.1 | Hooks + Riverpod integration |
 | `go_router` | ^17.2.3 | Declarative routing |
-| `dio` | ^5.5.0 | HTTP client (file uploads) |
-| `dartz` | ^0.10.1 | Functional programming (Either monad) |
-| `json_annotation` | ^4.9.0 | JSON serialization |
-| `intl` | ^0.20.2 | Date formatting |
+| `dio` | ^5.5.0 | HTTP client (imported but unused) |
+| `dartz` | ^0.10.1 | Functional programming (Either monad for Result type) |
+| `json_annotation` | ^4.11.0 | JSON serialization |
+| `intl` | ^0.20.2 | Date formatting (not currently used) |
 | `image_picker` | ^1.1.0 | Camera/gallery for document upload |
 | `file_picker` | ^11.0.2 | File picker for document upload |
 | `url_launcher` | ^6.3.1 | Open signed URLs externally |
 | `flutter_dotenv` | ^6.0.1 | Environment variables from `.env` |
-| `google_fonts` | ^6.2.1 | Google Fonts (Baloo 2) |
+| `google_fonts` | ^6.2.1 | Google Fonts (Inter) |
 
 ### Dev Dependencies
 
@@ -89,65 +92,72 @@ Both apps share the same Supabase backend (Postgres, Auth, Realtime, Storage).
 | `riverpod_generator` | ^4.0.0 | Riverpod code generation |
 | `build_runner` | ^2.4.0 | Code generation runner |
 | `riverpod_lint` | ^3.1.3 | Riverpod-specific linting |
+| `json_serializable` | ^6.9.4 | JSON code generation |
+| `mocktail` | ^1.0.4 | Mocking for tests |
 
 ### Architecture Decisions
 
-- **State management:** Riverpod with code generation (`@riverpod` + `.g.dart`)
-- **Routing:** GoRouter with `StatefulShellRoute.indexedStack` for bottom nav persistence
-- **Backend:** Supabase PostgreSQL + Auth + Storage + Realtime
+- **State management:** Riverpod 3 with manual providers (`Provider`, `AsyncNotifierProvider`, `FutureProvider`, `NotifierProvider`)
+- **Architecture:** Feature-first Clean Architecture with `domain/data/presentation` layers per feature
+- **Routing:** GoRouter with `StatefulShellRoute.indexedStack` for 4-tab bottom nav persistence
+- **Backend:** Supabase PostgreSQL + Auth + Storage
 - **Auth:** Email/password only (no OAuth)
 - **Chatbot:** Rule-based FAQ matching (no external LLM API)
-- **Theme:** Material 3, warm/light color scheme, Baloo 2 font
+- **Theme:** Material 3 light theme, Royal Blue/Teal/Amber palette, Inter font
 
 ---
 
 ## 5. Architecture Overview
 
-### Layered Architecture
+### Layered Architecture (per feature)
 
 ```
-lib/
-  main.dart                           # Entry point, Supabase init, theme, router
-  src/
-    core/
-      services/auth_service.dart       # Auth wrapper (singleton)
-      routing/app_router.dart          # GoRouter config + auth redirect
-      providers/                       # Shared providers
-        supabase_client_provider.dart  # SupabaseClient provider
-        auth_service_provider.dart     # AuthService provider
-        auth_state_provider.dart       # Reactive auth stream
-    features/
-      {feature}/
-        providers/                     # AsyncNotifier providers per feature
-        {screen}.dart                  # UI (ConsumerWidget / ConsumerStatefulWidget)
+feature_name/
+  domain/
+    entities/         Plain Dart classes (no Flutter, no database)
+    repositories/     Abstract interfaces defining operations
+    usecases/         Single-purpose business actions (optional)
+
+  data/
+    datasources/      Actual Supabase queries and API calls
+    models/           JSON-serializable classes with fromJson/toJson
+    repositories/     Implements domain interfaces, maps model ↔ entity
+
+  presentation/
+    providers/        Riverpod controllers (AsyncNotifier) with state
+    screens/          UI widgets (ConsumerWidget / ConsumerStatefulWidget)
 ```
+
+**Dependency rule:** Domain depends on nothing. Data depends on domain. Presentation depends on domain.
 
 ### Data Flow
 
 ```
-UI (ConsumerWidget)
-  └─ watches provider
-       └─ provider calls Supabase.instance.client directly
-            └─ returns AsyncValue<T>
-                 └─ UI renders with .when(loading, error, data)
+Screen (ConsumerWidget)
+  └─ watches Provider (AsyncNotifier / FutureProvider)
+       └─ calls Repository (abstract interface from domain)
+            └─ RepositoryImpl (implementation from data)
+                 └─ RemoteDataSource (actual Supabase queries)
 ```
-
-**Notable pattern:** Most providers call `Supabase.instance.client` directly and `AuthService().currentUser!.id` directly, rather than injecting through Riverpod providers. This makes testing harder but keeps the code simple.
 
 ### Navigation Flow
 
 ```
 Auth check (GoRouter redirect)
   ├─ Not logged in → /login or /signup
-  └─ Logged in → /dashboard (StatefulShellRoute)
-       ├─ /dashboard      (tab 0 — DashboardHome)
-       ├─ /checklist      (tab 1 — ChecklistScreen)
-       ├─ /jobs           (tab 2 — JobsScreen)
-       ├─ /chat           (tab 3 — ChatbotScreen)
-       └─ /wallet         (tab 4 — WalletScreen)
-  ── /notifications (pushed from AppBar bell icon)
+  └─ Logged in → / (StatefulShellRoute — 4 tabs + More)
+       ├─ /dashboard     (tab 0 — DashboardHome)
+       ├─ /checklist     (tab 1 — ChecklistScreen)
+       ├─ /jobs          (tab 2 — JobsScreen)
+       └─ /chat          (tab 3 — ChatbotScreen)
+  ── /my-documents  (pushed from More menu)
   ── /logbook       (pushed from More menu)
+  ── /notifications (pushed from More menu or AppBar bell)
+  ── /profile       (pushed from More menu)
+  ── /settings      (pushed from More menu)
 ```
+
+Bottom nav has **5 items** (tabs 0–3 + More `Icons.more_horiz`). The More menu opens a modal bottom sheet containing: Weekly Logbook, Notifications, Documents, Profile, Settings, Logout.
 
 ---
 
@@ -155,62 +165,227 @@ Auth check (GoRouter redirect)
 
 ```
 lib/
-  main.dart
+  main.dart                          # Entry point: Supabase init, ProviderScope,
+                                     # MaterialApp.router with theme + router
   src/
+    app/
+      intra_buddy_app.dart           # ConsumerWidget wrapping MaterialApp.router
+      router.dart                    # appRouterProvider with auth redirect +
+                                     #   StatefulShellRoute + pushed routes
+      theme/
+        app_colors.dart              # Color palette constants
+        app_typography.dart          # Inter font text theme
+        app_theme.dart               # Material 3 ThemeData with all component
+                                     #   styling (cards, buttons, inputs, nav)
+
     core/
-      providers/
-        auth_service_provider.dart
-        auth_service_provider.g.dart
-        auth_state_provider.dart
-        auth_state_provider.g.dart
-        supabase_client_provider.dart
-        supabase_client_provider.g.dart
-      routing/
-        app_router.dart
+      constants/
+        app_constants.dart           # Upload limits, email domain, etc.
+      errors/
+        failures.dart                # Failure types + Result<Either> typedef
+      network/
+        supabase_client_provider.dart # Provider<SupabaseClient>
       services/
-        auth_service.dart
+        auth_service.dart            # Thin wrapper around Supabase Auth +
+                                     #   validation helpers
+      providers/
+        auth_state_provider.dart     # authServiceProvider, authStateProvider,
+                                     #   currentUserProvider
+        dashboard_refresh_provider.dart  # Notifier<int> signal for auto-refresh
+
     features/
       auth/
-        login_screen.dart
-        signup_screen.dart
+        data/
+          datasources/
+            auth_remote_datasource.dart
+          models/
+            user_model.dart
+          repositories/
+            auth_repository_impl.dart
+        domain/
+          entities/
+            user.dart
+          repositories/
+            auth_repository.dart
+          usecases/
+            sign_in.dart
+            sign_up.dart
+            sign_out.dart
+            get_current_user.dart
+        presentation/
+          providers/
+            auth_controller.dart     # AuthController (AsyncNotifier<User?>)
+          screens/
+            login_screen.dart
+            signup_screen.dart
+
       dashboard/
-        dashboard_home.dart
-        student_dashboard.dart
-        providers/
-          dashboard_provider.dart
-          dashboard_provider.g.dart
+        presentation/
+          providers/
+            dashboard_controller.dart # DashboardData entity + dashboardProvider
+                                     #   (FutureProvider, watches refresh signal)
+          screens/
+            dashboard_home.dart      # Stat cards + notification badge
+            student_shell.dart       # Shell with AppBar, 5-tab nav, More menu
+
       checklist/
-        checklist_screen.dart
-        providers/
-          checklist_provider.dart
-          checklist_provider.g.dart
-      chatbot/
-        chatbot_screen.dart
-        providers/
-          chat_messages_provider.dart
-          chat_messages_provider.g.dart
-          chat_sessions_provider.dart
-          chat_sessions_provider.g.dart
-      digital_wallet/
-        wallet_screen.dart
-        providers/
-          wallet_provider.dart
-          wallet_provider.g.dart
+        data/
+          datasources/
+            checklist_remote_datasource.dart
+          models/
+            checklist_item_model.dart
+          repositories/
+            checklist_repository_impl.dart
+        domain/
+          entities/
+            checklist_item.dart
+          repositories/
+            checklist_repository.dart
+          usecases/
+            load_checklist.dart
+            toggle_item.dart
+        presentation/
+          providers/
+            checklist_controller.dart # ChecklistController (AsyncNotifier)
+          screens/
+            checklist_screen.dart    # Progress bar + toggle tiles
+
       jobs/
-        jobs_screen.dart
-        providers/
-          jobs_provider.dart
-          jobs_provider.g.dart
+        data/
+          datasources/
+            job_remote_datasource.dart
+          models/
+            job_application_model.dart
+          repositories/
+            job_repository_impl.dart
+        domain/
+          entities/
+            job_application.dart
+          repositories/
+            job_repository.dart
+          usecases/
+            load_applications.dart
+            add_application.dart
+            update_application.dart
+            delete_application.dart
+        presentation/
+          providers/
+            job_controller.dart      # JobController (AsyncNotifier)
+          screens/
+            jobs_screen.dart         # List + add/edit bottom sheet + delete
+
+      my_documents/
+        data/
+          datasources/
+            document_remote_datasource.dart
+          models/
+            document_model.dart
+          repositories/
+            document_repository_impl.dart
+        domain/
+          entities/
+            document_item.dart
+          repositories/
+            document_repository.dart
+          usecases/
+            load_documents.dart
+            upload_document.dart
+            delete_document.dart
+            get_view_url.dart
+        presentation/
+          providers/
+            document_controller.dart  # DocumentController (AsyncNotifier)
+          screens/
+            my_documents_screen.dart  # List + upload/view/delete
+
       logbook/
-        logbook_detail_page.dart
-        providers/
-          logbook_provider.dart
-          logbook_provider.g.dart
+        data/
+          datasources/
+            logbook_remote_datasource.dart
+          repositories/
+            logbook_repository_impl.dart
+        domain/
+          entities/
+            logbook_week.dart
+          repositories/
+            logbook_repository.dart
+          usecases/
+            load_weeks.dart
+            toggle_submitted.dart
+        presentation/
+          providers/
+            logbook_controller.dart  # LogbookController (AsyncNotifier)
+          screens/
+            logbook_screen.dart      # Week list with submit toggle
+
       notifications/
-        notification_screen.dart
-        providers/
-          notifications_provider.dart
-          notifications_provider.g.dart
+        data/
+          datasources/
+            notification_remote_datasource.dart
+          models/
+            notification_model.dart
+          repositories/
+            notification_repository_impl.dart
+        domain/
+          entities/
+            app_notification.dart
+          repositories/
+            notification_repository.dart
+          usecases/
+            load_notifications.dart
+            mark_as_read.dart
+            delete_notification.dart
+        presentation/
+          providers/
+            notification_controller.dart  # NotificationController (AsyncNotifier)
+          screens/
+            notification_screen.dart  # Grouped list + swipe-to-delete
+
+      chatbot/
+        data/
+          datasources/
+            chat_remote_datasource.dart
+          models/
+            chat_session_model.dart
+            chat_message_model.dart
+          repositories/
+            chat_repository_impl.dart
+        domain/
+          entities/
+            chat_session.dart
+            chat_message.dart
+          repositories/
+            chat_repository.dart
+          usecases/
+            load_sessions.dart
+            send_message.dart
+        presentation/
+          providers/
+            chat_controller.dart     # SessionsNotifier + ChatController
+          screens/
+            chatbot_screen.dart      # Message bubbles + drawer + input
+
+      profile/
+        data/
+          datasources/
+            profile_remote_datasource.dart
+          repositories/
+            profile_repository_impl.dart
+        domain/
+          entities/
+            student_profile.dart
+          repositories/
+            profile_repository.dart
+        presentation/
+          providers/
+            profile_controller.dart  # ProfileController (AsyncNotifier)
+          screens/
+            profile_screen.dart      # View/edit with initials avatar
+
+      settings/
+        presentation/
+          screens/
+            settings_screen.dart     # App version + sign out with confirmation
 ```
 
 ---
@@ -250,10 +425,9 @@ User role is stored in `public.users.role` with check constraint: `student`, `co
 |--------|----------------|
 | Sign in | `AuthService.signInWithEmail()` → `supabase.auth.signInWithPassword()` |
 | Sign up | `AuthService.signUpStudent()` → `supabase.auth.signUp()` with `user_metadata` containing role + student_id + phone |
-| Sign out | `AuthService.signOut()` → `supabase.auth.signOut()` |
-| Session check | `Supabase.instance.client.auth.currentSession` |
-| Auth stream | `supabase.auth.onAuthStateChange` |
-| Role lookup | SELECT role FROM users WHERE id = userId |
+| Sign out | `AuthService.signOut()` |
+| Session check | `authService.currentUser` (from `Supabase.instance.client.auth.currentSession`) |
+| Auth stream | `authService.authStateChanges` → Riverpod `authStateProvider` (StreamProvider) |
 
 ### Auth Routing (GoRouter redirect)
 
@@ -271,16 +445,18 @@ Trying to access /dashboard while logged out → redirected to /login
 | Path | Screen | Access | Notes |
 |------|--------|--------|-------|
 | `/login` | `LoginScreen` | Public | GoRouter redirect target if not logged in |
-| `/signup` | `SignupScreen` | Public | Pushed via Navigator, not GoRouter (legacy) |
+| `/signup` | `SignupScreen` | Public | GoRouter route |
 | `/dashboard` | `DashboardHome` | Auth | Tab 0 in StatefulShellRoute |
 | `/checklist` | `ChecklistScreen` | Auth | Tab 1 in StatefulShellRoute |
 | `/jobs` | `JobsScreen` | Auth | Tab 2 in StatefulShellRoute |
 | `/chat` | `ChatbotScreen` | Auth | Tab 3 in StatefulShellRoute |
-| `/wallet` | `WalletScreen` | Auth | Tab 4 in StatefulShellRoute |
-| `/notifications` | `NotificationScreen` | Auth | Pushed from AppBar bell icon |
-| `/logbook` | `LogbookDetailPage` | Auth | Pushed from More menu in bottom sheet |
+| `/my-documents` | `MyDocumentsScreen` | Auth | Pushed from More menu (not a tab) |
+| `/notifications` | `NotificationScreen` | Auth | Pushed from AppBar bell or More menu |
+| `/logbook` | `LogbookScreen` | Auth | Pushed from More menu |
+| `/profile` | `ProfileScreen` | Auth | Pushed from More menu |
+| `/settings` | `SettingsScreen` | Auth | Pushed from More menu |
 
-The bottom nav has **6 items** (tabs 0–4 + a More `Icons.more_horiz` that opens a modal bottom sheet). The More menu contains: Weekly Logbook Status, Profile (coming soon), Settings (coming soon), and Logout.
+Bottom nav has **5 items** (4 tabs + More icon). The More icon opens a modal bottom sheet with: Weekly Logbook, Notifications, Documents, Profile, Settings, and Logout.
 
 ---
 
@@ -288,76 +464,99 @@ The bottom nav has **6 items** (tabs 0–4 + a More `Icons.more_horiz` that open
 
 ### 10.1 Dashboard
 
-- **Screen:** `DashboardHome` (ConsumerWidget)
-- **Provider:** `dashboardProvider` — async map aggregating data from 5 Supabase tables
-- **Tables:** `users`, `student_checklists`, `job_applications`, `weekly_logbook_tracking`, `digital_wallet_items`
-- **UI:** Greeting card, milestone progress bar, job app stats, logbook status card, wallet doc count card
-- **Theme:** Each card has a different pastel background (amber, blue, orange, purple)
-- **Issues:**
-    - Queries Supabase directly instead of reusing feature providers
-    - Job statuses used by dashboard (`Pending`, `Interview`, `Offer`, `Rejected`) do not match `JobsScreen` statuses (`Applied`, `Interviewed`, `Accepted`, `Rejected`)
+- **Screen:** `DashboardHome` (ConsumerWidget with RefreshIndicator)
+- **Provider:** `dashboardProvider` — `FutureProvider<DashboardData>` aggregating data from 5 Supabase tables
+- **Tables:** `student_checklists`, `job_applications`, `digital_wallet_items`, `weekly_logbook_tracking`, `notifications`
+- **UI:** Welcome greeting, stat cards (milestones, applications, documents, logbook %), notification badge card
+- **Auto-refresh:** Watches `dashboardRefreshProvider` — a `Notifier<int>` bumped by every feature controller after mutations (toggle checklist, add job, upload document, submit logbook, etc.)
+- **States:** loading spinner, error card with retry, data with 4 stat cards + notif row
+- **Each card is tappable** — navigates to the relevant feature
 
 ### 10.2 Checklist
 
 - **Screen:** `ChecklistScreen` (ConsumerWidget)
-- **Provider:** `checklistProvider` (AsyncNotifier)
+- **Provider:** `checklistControllerProvider` — `AsyncNotifier<List<ChecklistItem>>`
 - **Tables:** `student_semesters`, `semesters`, `checklist_templates`, `student_checklists`
 - **Logic:**
-    1. Find student's enrolled semester (or active semester)
-    2. Load `checklist_templates` for that semester, ordered by `display_order`
-    3. Check/create `student_checklists` rows for each template
-    4. Display with toggle completion
-- **Notable:** Creates `student_checklists` rows lazily (on first load). Toggle updates Supabase and optimistically updates local state.
+  1. Find student's enrolled semester (or active semester)
+  2. Load `checklist_templates` for that semester, ordered by `display_order`
+  3. Check/create `student_checklists` rows for each template (lazy creation)
+  4. Display with toggle completion
+- **Optimistic update:** Toggle flips immediately in local state, then persists to Supabase
+- **States:** loading, error with retry, empty, data with progress bar + card tiles
 
 ### 10.3 Job Applications
 
-- **Screen:** `JobsScreen` (ConsumerStatefulWidget)
-- **Provider:** `jobsProvider` (AsyncNotifier)
+- **Screen:** `JobsScreen` (ConsumerWidget)
+- **Provider:** `jobControllerProvider` — `AsyncNotifier<List<JobApplication>>`
 - **Table:** `job_applications`
-- **Status values used:** `Applied`, `Interviewed`, `Accepted`, `Rejected`
-- **UI:** List with status chips, add/edit via modal bottom sheet, delete via popup menu
-- **Notable:** Uses `RefreshIndicator` + retry/error states
+- **Status values (DB enum):** `Pending`, `Interview`, `Offer`, `Rejected`, `Accepted`
+- **UI:** List with status chip colors, FAB to add, add/edit via modal bottom sheet, delete via popup menu with confirmation dialog
+- **States:** loading, error with retry, empty with prompt, data with RefreshIndicator
+- **Inline date formatting** (no intl package dependency)
 
 ### 10.4 Chatbot
 
 - **Screen:** `ChatbotScreen` (ConsumerStatefulWidget)
-- **Providers:** `chatSessionsProvider`, `chatMessagesProvider(sessionId)` (family)
+- **Providers:**
+  - `sessionsProvider` — `AsyncNotifier<List<ChatSession>>`
+  - `messagesProvider(sessionId)` — `FutureProvider.family<List<ChatMessage>, String>`
+  - `chatControllerProvider` — `Provider<ChatController>` (helper class with `sendMessage`)
 - **Tables:** `chat_sessions`, `chat_messages`, `faqs`
 - **FAQ matching:** Rule-based scoring (no external LLM):
-    - +10 if user message contains FAQ title
-    - +5 per matching keyword
-    - +1 per word overlap (words > 3 chars)
-    - Best match returned as assistant response
-- **UI:** Drawer for session history, message bubbles, typing indicator
-- **Notable:** First user message auto-generates session title. Long-press session to delete. No external API calls.
+  - +10 if user message contains FAQ title
+  - +5 per matching keyword
+  - +1 per word overlap (words > 3 chars)
+  - Best match returned as assistant response; fallback message if no match
+- **UI:** Message bubbles with role-based styling, end drawer for session history, text input bar with send button
+- **Auto-initialization:** Loads latest session on app start, or creates a new one
 
-### 10.5 Digital Wallet
+### 10.5 My Documents
 
-- **Screen:** `WalletScreen` (ConsumerWidget)
-- **Provider:** `walletProvider` (AsyncNotifier)
+- **Screen:** `MyDocumentsScreen` (ConsumerWidget)
+- **Provider:** `documentControllerProvider` — `AsyncNotifier<List<DocumentItem>>`
 - **Table:** `digital_wallet_items`
 - **Storage bucket:** `student-documents`
-- **Upload:** Supports image_picker (gallery) + file_picker (any file), 5 MB limit
+- **Upload:** Supports `image_picker` (gallery) + `file_picker` (any file), 5 MB limit
 - **Storage path:** `student-documents/{userId}/{timestamp}.{ext}`
-- **View:** Generates 60-second signed URL, opens via url_launcher
-- **Notable:** Upload logic lives in the screen, not the provider. Delete removes both storage file and DB row.
+- **View:** Generates 60-second signed URL, opens via `url_launcher`
+- **Delete:** Removes both storage file and DB row (with confirmation dialog)
+- **States:** loading, error, empty, data with file type icons (PDF red, DOC blue, image green, etc.)
+- **Upload flow:** Choose source → pick file → name dialog → upload
 
 ### 10.6 Notifications
 
 - **Screen:** `NotificationScreen` (ConsumerWidget)
-- **Provider:** `notificationsProvider` (AsyncNotifier)
+- **Provider:** `notificationControllerProvider` — `AsyncNotifier<List<AppNotification>>`
 - **Table:** `notifications`
-- **Logic:** On load, marks all unread as read. Supports tap-to-read and swipe-to-delete.
-- **Grouping:** Today / This week / Earlier
-- **Notable:** Optimistic local state updates (not invalidation) for mark-read and delete.
+- **Logic:** On load, marks all unread as read. Supports tap-to-mark-read and swipe-to-delete.
+- **Grouping:** Today / This Week / Earlier (computed locally from `created_at`)
+- **States:** loading, error, empty ("You're all caught up!"), grouped list
 
 ### 10.7 Logbook
 
-- **Screen:** `LogbookDetailPage` (ConsumerWidget)
-- **Provider:** `logbookProvider` (AsyncNotifier)
+- **Screen:** `LogbookScreen` (ConsumerWidget)
+- **Provider:** `logbookControllerProvider` — `AsyncNotifier<List<LogbookWeek>>`
 - **Table:** `weekly_logbook_tracking`
-- **UI:** List of weeks with submit toggle. Once submitted, shows green checkmark + date; button hidden on submitted items.
-- **Notable:** Optimistic local state update after toggle.
+- **UI:** Progress bar (submitted/total), week cards with CircleAvatar (week number or check icon), Submit button on unsubmitted weeks, green checkmark on submitted
+- **Optimistic update:** Toggle flips immediately, updates local list + counter before Supabase confirms
+- **States:** loading, error, empty, data
+
+### 10.8 Profile
+
+- **Screen:** `ProfileScreen` (ConsumerStatefulWidget)
+- **Provider:** `profileControllerProvider` — `AsyncNotifier<StudentProfile>`
+- **Table:** `users`
+- **UI:** Initials avatar, view/edit toggle with form fields (full name, phone number)
+- **Actions:** Edit, Save, Cancel — all inline with no separate navigation
+- **States:** loading, error, data with read-only fields or edit form
+
+### 10.9 Settings
+
+- **Screen:** `SettingsScreen` (ConsumerWidget)
+- **Provider:** Uses `authControllerProvider` for sign out
+- **UI:** List with app version, sign out with confirmation dialog
+- **Actions:** Sign out clears session and redirects to `/login`
 
 ---
 
@@ -365,30 +564,43 @@ The bottom nav has **6 items** (tabs 0–4 + a More `Icons.more_horiz` that open
 
 | Provider | Type | Returns | Key Methods |
 |----------|------|---------|-------------|
-| `supabaseClientProvider` | Provider | `SupabaseClient` | — |
-| `authServiceProvider` | Provider | `AuthService` | — |
-| `authStateProvider` | StreamProvider | `Stream<AuthState>` | — |
-| `goRouterProvider` | Provider | `GoRouter` | — |
-| `dashboardProvider` | AsyncNotifier | `Map<String, dynamic>` | — |
-| `checklistProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `toggleCompletion(item, bool)` |
-| `jobsProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `addApplication()`, `updateApplication()`, `deleteApplication()` |
-| `chatSessionsProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `createSession()`, `updateTitle()`, `touchSession()`, `deleteSession()` |
-| `chatMessagesProvider(sessionId)` | AsyncNotifier family | `List<Map<String, dynamic>>` | `addUserMessage()`, `addAssistantMessage()` |
-| `walletProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `deleteItem(id)` |
-| `notificationsProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `markAsRead(id)`, `deleteNotification(id)` |
-| `logbookProvider` | AsyncNotifier | `List<Map<String, dynamic>>` | `toggleSubmitted(id, bool)` |
+| `supabaseClientProvider` | `Provider` | `SupabaseClient` | — |
+| `authServiceProvider` | `Provider` | `AuthService` | — |
+| `authStateProvider` | `StreamProvider` | `Stream<AuthState>` | — |
+| `currentUserProvider` | `Provider` | `User?` | — |
+| `appRouterProvider` | `Provider` | `GoRouter` | — |
+| `dashboardRefreshProvider` | `NotifierProvider` | `int` | `trigger()` (bumps counter) |
+| `dashboardProvider` | `FutureProvider` | `DashboardData` | — (watches refresh signal) |
+| `checklistControllerProvider` | `AsyncNotifierProvider` | `List<ChecklistItem>` | `toggleItem(id, bool)` |
+| `jobControllerProvider` | `AsyncNotifierProvider` | `List<JobApplication>` | `add/update/delete()` |
+| `documentControllerProvider` | `AsyncNotifierProvider` | `List<DocumentItem>` | `upload/delete()` |
+| `logbookControllerProvider` | `AsyncNotifierProvider` | `List<LogbookWeek>` | `toggleSubmitted(id, bool)` |
+| `notificationControllerProvider` | `AsyncNotifierProvider` | `List<AppNotification>` | `markAsRead(id)`, `deleteNotification(id)` |
+| `sessionsProvider` | `AsyncNotifierProvider` | `List<ChatSession>` | `findOrCreateSession()` |
+| `messagesProvider(sessionId)` | `FutureProvider.family` | `List<ChatMessage>` | — |
+| `chatControllerProvider` | `Provider` | `ChatController` | `sendMessage(sessionId, content)` |
+| `profileControllerProvider` | `AsyncNotifierProvider` | `StudentProfile` | `updateProfile(name, phone)` |
+| `authControllerProvider` | `AsyncNotifierProvider` | `User?` | `signIn/signUp/signOut` |
+| `checklistRepositoryProvider` | `Provider` | `ChecklistRepository` | — |
+| `jobRepositoryProvider` | `Provider` | `JobRepository` | — |
+| `documentRepositoryProvider` | `Provider` | `DocumentRepository` | — |
+| `logbookRepositoryProvider` | `Provider` | `LogbookRepository` | — |
+| `notificationRepositoryProvider` | `Provider` | `NotificationRepository` | — |
+| `chatRepositoryProvider` | `Provider` | `ChatRepository` | — |
+| `profileRepositoryProvider` | `Provider` | `ProfileRepository` | — |
+| `authRepositoryProvider` | `Provider` | `AuthRepository` | — |
 
-All providers use Riverpod code generation (`@riverpod` + `.g.dart` files via `build_runner`).
+All providers are defined manually (no Riverpod code generation). Repository providers are `Provider<T>` singletons. Feature controllers are `AsyncNotifierProvider`. The dashboard uses `FutureProvider` with a refresh signal.
 
 ---
 
 ## 12. Database Schema
 
+[Sections 12.1–12.5 unchanged — same schema as originally defined]
+
 ### 12.1 Public Tables
 
 #### `users`
-Links to `auth.users` via FK. Stores student profile and role.
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | uuid | PK, FK → auth.users.id | |
@@ -402,7 +614,6 @@ Links to `auth.users` via FK. Stores student profile and role.
 | updated_at | timestamptz | NULL | now() |
 
 #### `semesters`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -413,8 +624,6 @@ Links to `auth.users` via FK. Stores student profile and role.
 | created_at | timestamptz | NULL | now() |
 
 #### `student_semesters`
-Junction table linking students to semesters.
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -423,8 +632,6 @@ Junction table linking students to semesters.
 | enrolled_at | timestamptz | NULL | now() |
 
 #### `checklist_templates`
-Admin-defined milestone items per semester.
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -436,8 +643,6 @@ Admin-defined milestone items per semester.
 | created_at | timestamptz | NULL | now() |
 
 #### `student_checklists`
-Per-student checklist item state.
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -451,7 +656,6 @@ Per-student checklist item state.
 | updated_by_admin | uuid | FK → users.id, NULL | |
 
 #### `job_applications`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -469,7 +673,6 @@ Per-student checklist item state.
 **Enum `application_status`:** `Pending`, `Interview`, `Offer`, `Rejected`, `Accepted`
 
 #### `digital_wallet_items`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -481,7 +684,6 @@ Per-student checklist item state.
 | notes | text | NULL | |
 
 #### `weekly_logbook_tracking`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -496,7 +698,6 @@ Per-student checklist item state.
 | updated_at | timestamptz | NULL | now() |
 
 #### `faq_categories`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -505,7 +706,6 @@ Per-student checklist item state.
 | display_order | int4 | NULL | |
 
 #### `faqs`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -518,7 +718,6 @@ Per-student checklist item state.
 | updated_at | timestamptz | NULL | now() |
 
 #### `notifications`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -532,7 +731,6 @@ Per-student checklist item state.
 | broadcast_id | int8 | FK → broadcast_messages.id | |
 
 #### `broadcast_messages`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int4 | PK | sequence |
@@ -543,7 +741,6 @@ Per-student checklist item state.
 | sent_at | timestamptz | NULL | now() |
 
 #### `chat_sessions`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | uuid | PK | gen_random_uuid() |
@@ -553,7 +750,6 @@ Per-student checklist item state.
 | updated_at | timestamptz | NULL | now() |
 
 #### `chat_messages`
-
 | Column | Type | Constraints | Default |
 |--------|------|-------------|---------|
 | id | int8 | PK | sequence |
@@ -596,35 +792,39 @@ Standard Supabase Auth schema (`auth.users`, `auth.sessions`, `auth.refresh_toke
 
 ## 13. Design System / Theme
 
-The app uses **Material 3** with a custom warm/light theme.
+The app uses **Material 3** with a custom light theme.
 
 ### Color Palette (current implementation)
 
 | Token | Hex | Usage |
 |-------|-----|-------|
-| Primary | `#0F172A` | AppBar, buttons, selected nav item |
-| Secondary | `#22A699` | FAB, checkboxes, chips |
-| Tertiary / Accent | `#F29727` | (defined but not widely used) |
-| Background | `#F7F4EF` | Scaffold background |
-| Surface | `#FFFDF9` | Cards, inputs |
-| Border | `#E7E2DA` | Dividers, input borders |
-| Muted text | `#6B7280` | Secondary text |
-| Error | `#E74C3C` | Error states |
+| Primary | `#1D4ED8` | AppBar, FilledButton, active nav |
+| Primary Container | `#DBEAFE` | Active chip backgrounds, selection |
+| Secondary | `#0D9488` | Checkboxes, success states, FAB |
+| Secondary Container | `#CCFBF1` | Chip backgrounds |
+| Tertiary / Accent | `#F59E0B` | Milestone highlights, badges |
+| Tertiary Container | `#FEF3C7` | Badge backgrounds |
+| Background | `#F8FAFC` | Scaffold background |
+| Surface | `#FFFFFF` | Cards, inputs, sheets |
+| On Surface | `#1E293B` | Primary text |
+| Muted Text | `#64748B` | Secondary text |
+| Error | `#EF4444` | Error states |
+| Border | `#E2E8F0` | Dividers, input borders |
 
 ### Typography
 
-- **Font:** Baloo 2 (Google Fonts, via `google_fonts` package)
-- **Scale:** 32pt → 12pt across 8 text styles, all Baloo 2 with varying weight
+- **Font:** Inter (Google Fonts, via `google_fonts` package)
+- **Scale:** 32pt → 12pt across 8 text styles, all Inter with varying weight
 
 ### Notable Widgets
 
 | Component | Styling |
 |-----------|---------|
-| Cards | `surface` color, 20px radius, elevation 2, subtle shadow |
-| Buttons | Primary `#0F172A` with white text, 16px radius |
-| Inputs | Outlined border, `surface` fill, 16px radius |
-| Bottom nav | White pill on `#F7F4EF`, no labels, 6 items |
-| AppBar | Primary color, white text, no elevation |
+| Cards | `surface` color, 16px radius, elevation 1, subtle shadow |
+| Buttons | Primary `#1D4ED8` with white text, 12px radius |
+| Inputs | Outlined border, `surface` fill, 12px radius |
+| Bottom nav | Material 3 NavigationBar, 5 items + indicator |
+| AppBar | Surface color, no elevation, centered title |
 
 ---
 
@@ -634,106 +834,41 @@ The app uses **Material 3** with a custom warm/light theme.
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Auth (login/signup) | Complete | Email/password, validation rules implemented |
-| Dashboard | Complete | Aggregates from 5 tables |
-| Checklist | Complete | Lazy row creation on first load |
-| Job Applications | Complete | Status values mismatch with dashboard |
-| Chatbot | Complete | Rule-based FAQ matching, no external API |
-| Digital Wallet | Complete | Image/file upload, storage signed URLs |
-| Notifications | Complete | Auto-mark-read on load |
-| Logbook | Complete | Submit/unsubmit with date tracking |
-| Riverpod + GoRouter migration | Complete | All features migrated |
-| Profile screen | Not started | Placeholder in More menu |
-| Settings screen | Not started | Placeholder in More menu |
+| Auth (login/signup) | Complete | Email/password, validation rules, GoRouter redirect |
+| Dashboard | Complete | Auto-refresh via signal, tappable stat cards |
+| Checklist | Complete | Lazy row creation, optimistic toggle |
+| Job Applications | Complete | DB enum statuses, CRUD with bottom sheet |
+| My Documents | Complete | Gallery/file upload, signed URLs, delete |
+| Weekly Logbook | Complete | Submit/unsubmit with progress bar |
+| Notifications | Complete | Grouped list, swipe-to-delete, auto-mark-read |
+| Chatbot | Complete | Rule-based FAQ matching, session history drawer |
+| Profile | Complete | View/edit name and phone |
+| Settings | Complete | App version, sign out with confirmation |
 
 ### Known Issues
 
-1. **Job status mismatch:** `dashboard_provider.dart` expects statuses `Pending`, `Interview`, `Offer`, `Rejected` but `jobs_screen.dart` uses `Applied`, `Interviewed`, `Accepted`, `Rejected`. The database enum is `Pending`, `Interview`, `Offer`, `Rejected`, `Accepted`.
-
-2. **Direct Supabase access:** Almost all providers call `Supabase.instance.client` directly instead of injecting `supabaseClientProvider`. Similarly, they use `AuthService().currentUser!.id` instead of `authServiceProvider`.
-
-3. **Null-assertion risk:** `AuthService().currentUser!.id` will crash if `currentUser` is null. No null checks.
-
-4. **`supabaseClientProvider` unused:** The `supabaseClientProvider` exists but no provider consumes it.
-
-5. **Upload logic in UI:** The digital wallet upload logic lives in `wallet_screen.dart`, not in the provider.
-
-6. **Legacy Navigator.push:** The signup screen uses `Navigator.push` instead of GoRouter, even though GoRouter handles routing.
-
-### Design Doc Note
-
-There is an aspirational design doc (`docs/DESIGN.md`) inspired by the Runna app — dark-first, Indigo+Lime palette, Sora font, training-plan week strip UI. **This is not reflected in the current implementation**, which uses a warm/light Material 3 theme with Baloo 2.
+1. **Direct Supabase access in auth_service:** `AuthService` calls `Supabase.instance.client` directly, making it harder to mock in tests.
+2. **`authService.currentUser!` null risk:** `currentUser!` will crash if the session expires while the user is on a screen that reads it (e.g., any data source's `_userId` getter).
+3. **No autoDispose on providers:** All providers live in memory permanently since none use `.autoDispose`. Acceptable for current app size.
+4. **Riverpod code generation not used:** Manual provider declarations are used instead of `@riverpod` annotations, resulting in more boilerplate.
+5. **Inconsistent controller patterns:** Some features use `AsyncValue.guard` (checklist, logbook), others use `fold()` + `invalidateSelf()` (jobs, documents). Both work but aren't uniform.
+6. **`ChatController` uses manual `Ref`:** Instead of extending `AsyncNotifier`, it stores `Ref` as a field — less idiomatic Riverpod.
+7. **No automated tests:** `mocktail` is in dev deps but no test files exist yet.
+8. **`dio` and `intl` unused:** Dependencies are imported but not used anywhere in the codebase.
 
 ---
 
-## 15. Rebuild Checklist
-
-Use this to recreate the project from scratch with the help of an AI agent:
-
-### Phase 1: Project Scaffold
-
-- [ ] `flutter create intra_buddy_mobile`
-- [ ] Add dependencies to `pubspec.yaml` (see section 4)
-- [ ] Run `flutter pub get`
-- [ ] Set up `.env` with `SUPABASE_URL` and `SUPABASE_ANON_KEY`
-
-### Phase 2: Core Infrastructure
-
-- [ ] Create `lib/src/core/services/auth_service.dart`
-- [ ] Create `lib/src/core/providers/` (supabase, auth service, auth state)
-- [ ] Create `lib/src/core/routing/app_router.dart` with GoRouter + auth redirect
-- [ ] Set up `lib/main.dart` — Supabase init, ProviderScope, MaterialApp.router, theme
-- [ ] Run `dart run build_runner build` to generate `.g.dart` files
-
-### Phase 3: Auth Screens
-
-- [ ] `LoginScreen` with email/password validation
-- [ ] `SignupScreen` with all field validations
-- [ ] Auth flow test (sign up → sign in → dashboard redirect)
-
-### Phase 4: Dashboard & Navigation
-
-- [ ] `StudentDashboard` with StatefulShellRoute + bottom nav bar
-- [ ] `DashboardHome` with aggregated data cards
-- [ ] More menu bottom sheet (logbook, profile placeholder, logout)
-- [ ] `NotificationScreen` (reached from AppBar)
-
-### Phase 5: Feature Screens (one by one)
-
-- [ ] Checklist (provider + screen)
-- [ ] Job Applications (provider + screen)
-- [ ] Chatbot (sessions + messages providers + screen + FAQ matching)
-- [ ] Digital Wallet (provider + screen + Storage integration)
-- [ ] Weekly Logbook (provider + screen)
-
-### Phase 6: Database Setup
-
-- [ ] Create Supabase project or use existing `yyqoleelprtldlvvizdk.supabase.co`
-- [ ] Run migrations to create all public tables (see section 12)
-- [ ] Set up Row Level Security (RLS) policies
-- [ ] Create `student-documents` Storage bucket
-- [ ] Enable Supabase Auth (email/password)
-
-### Phase 7: Polish
-
-- [ ] Fix known issues (status mismatch, provider injection)
-- [ ] Add profile and settings screens
-- [ ] Test all flows end-to-end
-
----
-
-## 16. Running the App
+## 15. Running the App
 
 ```bash
 # Install dependencies
 flutter pub get
 
-# Generate Riverpod code
+# Generate JSON serialization code
 dart run build_runner build
 
-# Create environment file
-cp .env.example .env
-# Edit .env with your Supabase credentials
+# Create environment file (if not present)
+echo "SUPABASE_ANON_KEY=your_key" >> .env
 
 # Run on connected device / emulator
 flutter run
