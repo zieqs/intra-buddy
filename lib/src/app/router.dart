@@ -6,7 +6,7 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
 import '../features/dashboard/presentation/screens/student_shell.dart';
 import '../features/dashboard/presentation/screens/dashboard_home.dart';
-import '../features/checklist/presentation/screens/checklist_placeholder.dart';
+import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/jobs/presentation/screens/jobs_placeholder.dart';
 import '../features/chatbot/presentation/screens/chat_placeholder.dart';
 import '../features/my_documents/presentation/screens/my_documents_placeholder.dart';
@@ -63,7 +63,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/checklist',
                 name: 'checklist',
-                builder: (context, state) => const ChecklistPlaceholder(),
+                builder: (context, state) => const ChecklistScreen(),
               ),
             ],
           ),
