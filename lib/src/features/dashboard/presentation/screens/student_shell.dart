@@ -10,7 +10,7 @@ class StudentShell extends ConsumerWidget {
   const StudentShell({super.key, required this.navigationShell});
 
   void _onTap(BuildContext context, int index) {
-    if (index == 5) {
+    if (index == 4) {
       _showMoreMenu(context);
     } else {
       navigationShell.goBranch(index);
@@ -48,11 +48,11 @@ class StudentShell extends ConsumerWidget {
                   },
                 ),
                 _MoreMenuItem(
-                  icon: Icons.notifications_outlined,
-                  label: 'Notifications',
+                  icon: Icons.folder_outlined,
+                  label: 'My Documents',
                   onTap: () {
                     Navigator.pop(context);
-                    context.push('/notifications');
+                    context.push('/my-documents');
                   },
                 ),
                 _MoreMenuItem(
@@ -61,6 +61,14 @@ class StudentShell extends ConsumerWidget {
                   onTap: () {
                     Navigator.pop(context);
                     context.push('/profile');
+                  },
+                ),
+                _MoreMenuItem(
+                  icon: Icons.notifications_outlined,
+                  label: 'Notifications',
+                  onTap: () {
+                    Navigator.pop(context);
+                    context.push('/notifications');
                   },
                 ),
                 _MoreMenuItem(
@@ -122,7 +130,7 @@ class StudentShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentBranch = navigationShell.currentIndex;
-    final titles = ['Dashboard', 'Checklist', 'Jobs', 'Chat', 'Documents'];
+    final titles = ['Dashboard', 'Checklist', 'Jobs', 'Chat'];
 
     return Scaffold(
       appBar: AppBar(
@@ -136,38 +144,38 @@ class StudentShell extends ConsumerWidget {
       ),
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
-        selectedIndex: currentBranch < 5 ? currentBranch : 0,
+        selectedIndex: currentBranch < 4 ? currentBranch : 0,
         onDestinationSelected: (index) => _onTap(context, index),
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: '',
+            //label: 'Dashboard',
           ),
           NavigationDestination(
             icon: Icon(Icons.checklist_outlined),
             selectedIcon: Icon(Icons.checklist),
-            label: 'Checklist',
+            label: '',
+            //label: 'Checklist',
           ),
           NavigationDestination(
-            icon: Icon(Icons.work_outlined),
+            icon: Icon(Icons.work_outline),
             selectedIcon: Icon(Icons.work),
-            label: 'Jobs',
+            label: '',
+            //label: 'Jobs',
           ),
           NavigationDestination(
             icon: Icon(Icons.chat_outlined),
             selectedIcon: Icon(Icons.chat),
-            label: 'Chat',
+            label: '',
+            //label: 'Chat',
           ),
           NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder),
-            label: 'Documents',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.more_horiz),
-            selectedIcon: Icon(Icons.more_horiz),
-            label: 'More',
+            icon: Icon(Icons.person_2_outlined),
+            selectedIcon: Icon(Icons.person_2),
+            label: '',
+            //label: 'More',
           ),
         ],
       ),

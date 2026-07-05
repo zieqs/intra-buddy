@@ -85,16 +85,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/my-documents',
-                name: 'my-documents',
-                builder: (context, state) => const MyDocumentsScreen(),
-              ),
-            ],
-          ),
         ],
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: '/my-documents',
+        name: 'my-documents',
+        builder: (context, state) => const MyDocumentsScreen(),
       ),
       GoRoute(
         parentNavigatorKey: _rootNavigatorKey,

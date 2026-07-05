@@ -32,7 +32,7 @@ class DashboardHome extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Track your internship progress',
+                    'Lets track your internship progress',
                     style: Theme.of(
                       context,
                     ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
