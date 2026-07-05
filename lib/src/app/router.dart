@@ -4,6 +4,16 @@ import 'package:go_router/go_router.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
+import '../features/dashboard/presentation/screens/student_shell.dart';
+import '../features/dashboard/presentation/screens/dashboard_home.dart';
+import '../features/checklist/presentation/screens/checklist_placeholder.dart';
+import '../features/jobs/presentation/screens/jobs_placeholder.dart';
+import '../features/chatbot/presentation/screens/chat_placeholder.dart';
+import '../features/my_documents/presentation/screens/my_documents_placeholder.dart';
+import '../features/notifications/presentation/screens/notification_screen.dart';
+import '../features/logbook/presentation/screens/logbook_screen.dart';
+import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/settings/presentation/screens/settings_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 
@@ -36,40 +46,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
-          return Scaffold(
-            body: navigationShell,
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: navigationShell.currentIndex,
-              onDestinationSelected: (index) => navigationShell.goBranch(index),
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(Icons.dashboard_outlined),
-                  selectedIcon: Icon(Icons.dashboard),
-                  label: 'Dashboard',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.checklist_outlined),
-                  selectedIcon: Icon(Icons.checklist),
-                  label: 'Checklist',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.work_outlined),
-                  selectedIcon: Icon(Icons.work),
-                  label: 'Jobs',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.chat_outlined),
-                  selectedIcon: Icon(Icons.chat),
-                  label: 'Chat',
-                ),
-                NavigationDestination(
-                  icon: Icon(Icons.folder_outlined),
-                  selectedIcon: Icon(Icons.folder),
-                  label: 'Documents',
-                ),
-              ],
-            ),
-          );
+          return StudentShell(navigationShell: navigationShell);
         },
         branches: [
           StatefulShellBranch(
@@ -77,8 +54,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/dashboard',
                 name: 'dashboard',
-                builder: (context, state) =>
-                    const Scaffold(body: Center(child: Text('Dashboard'))),
+                builder: (context, state) => const DashboardHome(),
               ),
             ],
           ),
@@ -87,8 +63,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/checklist',
                 name: 'checklist',
-                builder: (context, state) =>
-                    const Scaffold(body: Center(child: Text('Checklist'))),
+                builder: (context, state) => const ChecklistPlaceholder(),
               ),
             ],
           ),
@@ -97,8 +72,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/jobs',
                 name: 'jobs',
-                builder: (context, state) =>
-                    const Scaffold(body: Center(child: Text('Jobs'))),
+                builder: (context, state) => const JobsPlaceholder(),
               ),
             ],
           ),
@@ -107,8 +81,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/chat',
                 name: 'chat',
-                builder: (context, state) =>
-                    const Scaffold(body: Center(child: Text('Chat'))),
+                builder: (context, state) => const ChatPlaceholder(),
               ),
             ],
           ),
@@ -117,12 +90,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/my-documents',
                 name: 'my-documents',
-                builder: (context, state) =>
-                    const Scaffold(body: Center(child: Text('My Documents'))),
+                builder: (context, state) => const MyDocumentsPlaceholder(),
               ),
             ],
           ),
         ],
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: '/notifications',
+        name: 'notifications',
+        builder: (context, state) => const NotificationScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: '/logbook',
+        name: 'logbook',
+        builder: (context, state) => const LogbookScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: '/profile',
+        name: 'profile',
+        builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        parentNavigatorKey: _rootNavigatorKey,
+        path: '/settings',
+        name: 'settings',
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
