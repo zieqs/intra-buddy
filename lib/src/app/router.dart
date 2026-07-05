@@ -9,7 +9,7 @@ import '../features/dashboard/presentation/screens/dashboard_home.dart';
 import '../features/checklist/presentation/screens/checklist_screen.dart';
 import '../features/jobs/presentation/screens/jobs_screen.dart';
 import '../features/chatbot/presentation/screens/chat_placeholder.dart';
-import '../features/my_documents/presentation/screens/my_documents_placeholder.dart';
+import '../features/my_documents/presentation/screens/my_documents_screen.dart';
 import '../features/notifications/presentation/screens/notification_screen.dart';
 import '../features/logbook/presentation/screens/logbook_screen.dart';
 import '../features/profile/presentation/screens/profile_screen.dart';
@@ -90,7 +90,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/my-documents',
                 name: 'my-documents',
-                builder: (context, state) => const MyDocumentsPlaceholder(),
+                builder: (context, state) => const MyDocumentsScreen(),
               ),
             ],
           ),
