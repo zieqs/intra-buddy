@@ -47,6 +47,11 @@ class AppTypography {
         height: 1.33,
         fontWeight: FontWeight.w500,
       ),
+      bodySmall: inter.bodySmall?.copyWith(
+        fontSize: 13,
+        height: 1.55,
+        fontWeight: FontWeight.w400,
+      ),
     );
   }
 }

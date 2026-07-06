@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/chat_session.dart';
@@ -56,43 +58,109 @@ class SessionsNotifier extends AsyncNotifier<List<ChatSession>> {
   }
 }
 
-final chatControllerProvider = Provider<ChatController>(
-  (ref) => ChatController(ref),
-);
+enum ChatProcessingPhase { idle, thinking, streaming }
 
-class ChatController {
-  final Ref _ref;
+class ChatProcessingState {
+  final ChatProcessingPhase phase;
+  final String? sessionId;
+  final String? fullContent;
 
-  ChatController(this._ref);
+  const ChatProcessingState({
+    this.phase = ChatProcessingPhase.idle,
+    this.sessionId,
+    this.fullContent,
+  });
+
+  static const idle = ChatProcessingState();
+}
+
+final chatControllerProvider =
+    NotifierProvider<ChatController, ChatProcessingState>(
+      ChatController.new,
+    );
+
+class ChatController extends Notifier<ChatProcessingState> {
+  Timer? _thinkingTimer;
+  bool _disposed = false;
+
+  @override
+  ChatProcessingState build() {
+    ref.onDispose(() => _disposed = true);
+    return const ChatProcessingState();
+  }
+
+  static const _fallbackMessage =
+    "I'm sorry, I couldn't find an answer. Please try rephrasing or contact your coordinator.";
 
   Future<void> sendMessage({
     required String sessionId,
     required String content,
   }) async {
-    final repo = _ref.read(chatRepositoryProvider);
+    if (state.phase != ChatProcessingPhase.idle) return;
+
+    final repo = ref.read(chatRepositoryProvider);
 
     await repo.addMessage(sessionId: sessionId, role: 'user', content: content);
+    ref.invalidate(messagesProvider(sessionId));
 
-    final answer = await repo.findAnswer(content);
-    answer.fold((_) {}, (faqMessage) async {
-      if (faqMessage != null) {
-        await repo.addMessage(
-          sessionId: sessionId,
-          role: 'assistant',
-          content: faqMessage.content,
-          matchedFaqId: faqMessage.matchedFaqId,
-        );
-      } else {
-        await repo.addMessage(
-          sessionId: sessionId,
-          role: 'assistant',
-          content:
-              "I'm sorry, I couldn't find an answer. Please try rephrasing or contact your coordinator.",
-        );
-      }
-      _ref.invalidate(messagesProvider(sessionId));
-    });
+    state = ChatProcessingState(
+      phase: ChatProcessingPhase.thinking,
+      sessionId: sessionId,
+    );
 
-    _ref.invalidate(messagesProvider(sessionId));
+    final answerResult = await repo.findAnswer(content);
+    final answerText = answerResult.fold(
+      (_) => _fallbackMessage,
+      (faqMessage) => faqMessage?.content ?? _fallbackMessage,
+    );
+
+    if (_disposed || state.phase != ChatProcessingPhase.thinking) return;
+
+    final delay = Duration(milliseconds: 800 + Random().nextInt(400));
+    await Future.delayed(delay);
+
+    if (_disposed || state.phase != ChatProcessingPhase.thinking) return;
+
+    state = ChatProcessingState(
+      phase: ChatProcessingPhase.streaming,
+      sessionId: sessionId,
+      fullContent: answerText,
+    );
+  }
+
+  Future<void> completeStreaming() async {
+    final currentState = state;
+    if (currentState.phase != ChatProcessingPhase.streaming ||
+        currentState.fullContent == null ||
+        currentState.sessionId == null) {
+      state = const ChatProcessingState();
+      return;
+    }
+
+    final repo = ref.read(chatRepositoryProvider);
+    await repo.addMessage(
+      sessionId: currentState.sessionId!,
+      role: 'assistant',
+      content: currentState.fullContent!,
+    );
+    ref.invalidate(messagesProvider(currentState.sessionId!));
+    state = const ChatProcessingState();
+  }
+
+  void stopStreaming() {
+    if (state.phase == ChatProcessingPhase.thinking) {
+      _thinkingTimer?.cancel();
+      state = const ChatProcessingState();
+      return;
+    }
+    if (state.phase == ChatProcessingPhase.streaming) {
+      completeStreaming();
+      return;
+    }
+  }
+
+  void cancel() {
+    _thinkingTimer?.cancel();
+    state = const ChatProcessingState();
   }
 }

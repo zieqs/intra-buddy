@@ -215,9 +215,9 @@ class AppTheme {
         backgroundColor: AppColors.darkSurface,
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return const IconThemeData(color: AppColors.primary, size: 20);
+            return const IconThemeData(color: AppColors.primary, size: 24);
           }
-          return const IconThemeData(color: AppColors.darkMuted, size: 20);
+          return const IconThemeData(color: AppColors.darkMuted, size: 24);
         }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {

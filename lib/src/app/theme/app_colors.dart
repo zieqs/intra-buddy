@@ -44,6 +44,14 @@ class AppColors {
   static const darkOnTertiaryContainer = Color(0xFFFEF3C7);
   static const darkErrorContainer = Color(0xFF7F1D1D);
   static const darkOnErrorContainer = Color(0xFFFEE2E2);
+
+  // --- Chat-specific (light) ---
+  static const lightChatThinkingBg = Color(0xFFF0F0F0);
+  static const lightChatThinkingText = Color(0xFF64748B);
+
+  // --- Chat-specific (dark) ---
+  static const darkChatThinkingBg = Color(0xFF131313);
+  static const darkChatThinkingText = Color(0xFF9E9E9E);
 }
 
 extension ThemeColor on BuildContext {
@@ -87,4 +95,9 @@ extension ThemeColor on BuildContext {
       _resolve(AppColors.lightErrorContainer, AppColors.darkErrorContainer);
   Color get onErrorContainer =>
       _resolve(AppColors.lightOnErrorContainer, AppColors.darkOnErrorContainer);
+
+  Color get chatThinkingBg =>
+      _resolve(AppColors.lightChatThinkingBg, AppColors.darkChatThinkingBg);
+  Color get chatThinkingText =>
+      _resolve(AppColors.lightChatThinkingText, AppColors.darkChatThinkingText);
 }

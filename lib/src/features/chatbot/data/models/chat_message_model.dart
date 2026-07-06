@@ -19,6 +19,9 @@ class ChatMessageModel {
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
 
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  final MessageStatus status;
+
   const ChatMessageModel({
     required this.id,
     required this.sessionId,
@@ -26,6 +29,7 @@ class ChatMessageModel {
     required this.content,
     this.matchedFaqId,
     required this.createdAt,
+    this.status = MessageStatus.complete,
   });
 
   factory ChatMessageModel.fromJson(Map<String, dynamic> json) =>
@@ -39,5 +43,26 @@ class ChatMessageModel {
     content: content,
     matchedFaqId: matchedFaqId,
     createdAt: createdAt,
+    status: status,
   );
+
+  ChatMessageModel copyWith({
+    int? id,
+    String? sessionId,
+    String? role,
+    String? content,
+    int? matchedFaqId,
+    DateTime? createdAt,
+    MessageStatus? status,
+  }) {
+    return ChatMessageModel(
+      id: id ?? this.id,
+      sessionId: sessionId ?? this.sessionId,
+      role: role ?? this.role,
+      content: content ?? this.content,
+      matchedFaqId: matchedFaqId ?? this.matchedFaqId,
+      createdAt: createdAt ?? this.createdAt,
+      status: status ?? this.status,
+    );
+  }
 }
