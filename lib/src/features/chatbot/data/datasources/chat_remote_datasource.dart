@@ -52,10 +52,22 @@ class ChatRemoteDataSource {
     };
     if (matchedFaqId != null) payload['matched_faq_id'] = matchedFaqId;
 
+    final now = DateTime.now().toIso8601String();
     await supabase
         .from('chat_sessions')
-        .update({'updated_at': DateTime.now().toIso8601String()})
+        .update({'updated_at': now})
         .eq('id', sessionId);
+
+    if (role == 'user') {
+      final snippet = content.length > 60
+          ? '${content.substring(0, 57)}...'
+          : content;
+      await supabase
+          .from('chat_sessions')
+          .update({'title': snippet})
+          .eq('id', sessionId)
+          .filter('title', 'is', 'null');
+    }
 
     final response = await supabase
         .from('chat_messages')

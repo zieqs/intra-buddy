@@ -122,7 +122,7 @@ class StudentShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentBranch = navigationShell.currentIndex;
-    final titles = ['Dashboard', 'Checklist', 'Jobs', 'Chat'];
+    final titles = ['Dashboard', 'Checklist', 'Jobs', 'INTRA Assistant'];
 
     return Scaffold(
       appBar: AppBar(

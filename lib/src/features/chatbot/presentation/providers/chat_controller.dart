@@ -41,6 +41,14 @@ class SessionsNotifier extends AsyncNotifier<List<ChatSession>> {
     return result.fold((failure) => throw failure, (session) => session!.id);
   }
 
+  Future<String> createNewSession() async {
+    final repo = ref.read(chatRepositoryProvider);
+    final result = await repo.createSession();
+    final id = result.fold((failure) => throw failure, (session) => session.id);
+    ref.invalidateSelf();
+    return id;
+  }
+
   Future<void> deleteSession(String id) async {
     final repo = ref.read(chatRepositoryProvider);
     await repo.deleteSession(id);

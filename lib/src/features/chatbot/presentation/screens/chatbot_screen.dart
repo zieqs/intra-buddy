@@ -12,9 +12,11 @@ class ChatbotScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _messageCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
   String? _currentSessionId;
+  final _sessionsWithActivity = <String>{};
 
   @override
   void initState() {
@@ -43,10 +45,46 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
     }
   }
 
+  Future<void> _createNewSession() async {
+    if (_currentSessionId != null &&
+        !_sessionsWithActivity.contains(_currentSessionId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Send a message first to start a new session')),
+      );
+      return;
+    }
+
+    try {
+      final id = await ref.read(sessionsProvider.notifier).createNewSession();
+      if (mounted) {
+        setState(() => _currentSessionId = id);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to create new session')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteSession(String sessionId) async {
+    await ref.read(sessionsProvider.notifier).deleteSession(sessionId);
+    if (mounted && _currentSessionId == sessionId) {
+      final remaining = await ref.read(sessionsProvider.future);
+      if (remaining.isNotEmpty) {
+        setState(() => _currentSessionId = remaining.first.id);
+      } else {
+        await _createNewSession();
+      }
+    }
+  }
+
   void _sendMessage() {
     final text = _messageCtrl.text.trim();
     if (text.isEmpty || _currentSessionId == null) return;
 
+    _sessionsWithActivity.add(_currentSessionId!);
     ref
         .read(chatControllerProvider)
         .sendMessage(sessionId: _currentSessionId!, content: text);
@@ -58,20 +96,30 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
     ref.listen<String?>(_currentSessionIdProvider, (prev, next) {});
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: const Text('INTRA Assistant'),
+        title: const Text(''),
+        leading: IconButton(
+          icon: const Icon(Icons.dehaze),
+          tooltip: 'Chat History',
+          onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () => Scaffold.of(context).openEndDrawer(),
+            icon: const Icon(Icons.message_outlined),
+            tooltip: 'New Chat',
+            onPressed: _createNewSession,
           ),
         ],
       ),
-      endDrawer: _SessionDrawer(
+      drawer: _SessionDrawer(
+        currentSessionId: _currentSessionId,
         onSessionSelected: (sessionId) {
           setState(() => _currentSessionId = sessionId);
           Navigator.pop(context);
         },
+        onNewSession: _createNewSession,
+        onDeleteSession: _deleteSession,
       ),
       body: Column(
         children: [
@@ -256,9 +304,17 @@ class _MessageBubble extends StatelessWidget {
 }
 
 class _SessionDrawer extends ConsumerWidget {
+  final String? currentSessionId;
   final void Function(String sessionId) onSessionSelected;
+  final VoidCallback onNewSession;
+  final void Function(String sessionId) onDeleteSession;
 
-  const _SessionDrawer({required this.onSessionSelected});
+  const _SessionDrawer({
+    this.currentSessionId,
+    required this.onSessionSelected,
+    required this.onNewSession,
+    required this.onDeleteSession,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -270,10 +326,16 @@ class _SessionDrawer extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.all(20),
-              child: Text(
-                'Chat History',
-                style: Theme.of(context).textTheme.titleLarge,
+              padding: const EdgeInsets.fromLTRB(20, 20, 8, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Chat History',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                  ),
+                ],
               ),
             ),
             const Divider(height: 1),
@@ -298,18 +360,42 @@ class _SessionDrawer extends ConsumerWidget {
                     itemCount: sessions.length,
                     itemBuilder: (context, index) {
                       final session = sessions[index];
+                      final isActive = session.id == currentSessionId;
                       return ListTile(
+                        selected: isActive,
+                        selectedTileColor: AppColors.primaryContainer.withAlpha(60),
                         title: Text(
                           session.title ?? 'Chat Session',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        subtitle: Text(
-                          _formatDate(session.updatedAt),
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: AppColors.muted),
-                        ),
                         onTap: () => onSessionSelected(session.id),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 20),
+                          color: AppColors.error,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                title: const Text('Delete Session'),
+                                content: const Text('Are you sure you want to delete this chat session?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(ctx);
+                                      onDeleteSession(session.id);
+                                    },
+                                    child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   );
@@ -322,25 +408,4 @@ class _SessionDrawer extends ConsumerWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
-    final diff = DateTime.now().difference(date);
-    if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ago';
-    if (diff.inDays < 7) return '${diff.inDays}d ago';
-    final months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return '${date.day} ${months[date.month - 1]}';
-  }
 }
