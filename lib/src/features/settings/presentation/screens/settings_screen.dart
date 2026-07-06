@@ -17,12 +17,12 @@ class SettingsScreen extends ConsumerWidget {
           Card(
             child: Column(
               children: [
-                const ListTile(
-                  leading: Icon(Icons.info_outline, color: AppColors.primary),
-                  title: Text('App Version'),
+                ListTile(
+                  leading: const Icon(Icons.info_outline, color: AppColors.primary),
+                  title: const Text('App Version'),
                   trailing: Text(
                     '0.1.0+1',
-                    style: TextStyle(color: AppColors.muted),
+                    style: TextStyle(color: context.muted),
                   ),
                 ),
                 const Divider(height: 1, indent: 16, endIndent: 16),

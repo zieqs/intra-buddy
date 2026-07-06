@@ -14,6 +14,8 @@ class IntraBuddyApp extends ConsumerWidget {
       title: 'INTRA Buddy',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       routerConfig: router,
     );
   }

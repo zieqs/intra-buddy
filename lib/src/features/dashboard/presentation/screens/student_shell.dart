@@ -35,7 +35,7 @@ class StudentShell extends ConsumerWidget {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.outline,
+                    color: context.outline,
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -197,12 +197,12 @@ class _MoreMenuItem extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isDestructive ? AppColors.error : AppColors.onSurface,
+        color: isDestructive ? AppColors.error : context.onSurface,
       ),
       title: Text(
         label,
         style: TextStyle(
-          color: isDestructive ? AppColors.error : AppColors.onSurface,
+          color: isDestructive ? AppColors.error : context.onSurface,
         ),
       ),
       onTap: onTap,

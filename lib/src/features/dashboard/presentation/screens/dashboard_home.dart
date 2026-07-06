@@ -35,7 +35,7 @@ class DashboardHome extends ConsumerWidget {
                     'Lets track your internship progress',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                    ).textTheme.bodyMedium?.copyWith(color: context.muted),
                   ),
                 ],
               ),
@@ -64,7 +64,7 @@ class DashboardHome extends ConsumerWidget {
                         title: 'Milestones',
                         value:
                             '${data.completedMilestones}/${data.totalMilestones}',
-                        color: AppColors.primaryContainer,
+                        color: context.primaryContainer,
                         onTap: () => context.go('/checklist'),
                       ),
                     ),
@@ -73,7 +73,7 @@ class DashboardHome extends ConsumerWidget {
                       child: _StatCard(
                         title: 'Applications',
                         value: '${data.jobApplications}',
-                        color: AppColors.secondaryContainer,
+                        color: context.secondaryContainer,
                         onTap: () => context.go('/jobs'),
                       ),
                     ),
@@ -86,7 +86,7 @@ class DashboardHome extends ConsumerWidget {
                       child: _StatCard(
                         title: 'Documents',
                         value: '${data.documents}',
-                        color: AppColors.tertiaryContainer,
+                        color: context.tertiaryContainer,
                         onTap: () => context.go('/my-documents'),
                       ),
                     ),
@@ -97,7 +97,7 @@ class DashboardHome extends ConsumerWidget {
                         value: data.totalWeeks > 0
                             ? '${(data.submittedWeeks / data.totalWeeks * 100).round()}%'
                             : '0%',
-                        color: AppColors.errorContainer,
+                        color: context.errorContainer,
                         onTap: () => context.push('/logbook'),
                       ),
                     ),
@@ -144,7 +144,7 @@ class DashboardHome extends ConsumerWidget {
                           const SizedBox(width: 8),
                           const Icon(
                             Icons.chevron_right,
-                            color: AppColors.muted,
+                            color: context.muted,
                           ),
                         ],
                       ),
@@ -199,7 +199,7 @@ class _StatCard extends StatelessWidget {
                 title,
                 style: Theme.of(
                   context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                ).textTheme.bodyMedium?.copyWith(color: context.muted),
               ),
             ],
           ),

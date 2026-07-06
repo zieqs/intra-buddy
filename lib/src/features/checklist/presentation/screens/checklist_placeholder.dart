@@ -10,7 +10,7 @@ class ChecklistPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.checklist, size: 64, color: AppColors.muted),
+          Icon(Icons.checklist, size: 64, color: context.muted),
           const SizedBox(height: 16),
           Text('Checklist', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
@@ -18,7 +18,7 @@ class ChecklistPlaceholder extends StatelessWidget {
             'Coming soon',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+            ).textTheme.bodyMedium?.copyWith(color: context.muted),
           ),
         ],
       ),

@@ -10,7 +10,7 @@ class JobsPlaceholder extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.work_outlined, size: 64, color: AppColors.muted),
+          Icon(Icons.work_outlined, size: 64, color: context.muted),
           const SizedBox(height: 16),
           Text(
             'Job Applications',
@@ -21,7 +21,7 @@ class JobsPlaceholder extends StatelessWidget {
             'Coming soon',
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+            ).textTheme.bodyMedium?.copyWith(color: context.muted),
           ),
         ],
       ),

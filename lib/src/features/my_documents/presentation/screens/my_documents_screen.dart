@@ -49,10 +49,10 @@ class MyDocumentsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.folder_outlined,
                     size: 64,
-                    color: AppColors.muted,
+                    color: context.muted,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -64,7 +64,7 @@ class MyDocumentsScreen extends ConsumerWidget {
                     'Tap + to upload your first document',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                    ).textTheme.bodyMedium?.copyWith(color: context.muted),
                   ),
                 ],
               ),
@@ -98,7 +98,7 @@ class MyDocumentsScreen extends ConsumerWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 8),
                 decoration: BoxDecoration(
-                  color: AppColors.outline,
+                  color: context.outline,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -242,7 +242,7 @@ class _DocumentCard extends ConsumerWidget {
           '${item.fileType?.toUpperCase() ?? 'FILE'}  •  ${_formatDate(item.uploadedAt)}',
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+          ).textTheme.bodySmall?.copyWith(color: context.muted),
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) async {

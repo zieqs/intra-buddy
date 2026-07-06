@@ -37,7 +37,7 @@ class ChecklistScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.checklist, size: 64, color: AppColors.muted),
+                Icon(Icons.checklist, size: 64, color: context.muted),
                 const SizedBox(height: 16),
                 Text(
                   'No checklist items yet',
@@ -71,7 +71,7 @@ class ChecklistScreen extends ConsumerWidget {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 8,
-                        backgroundColor: AppColors.outline,
+                        backgroundColor: context.outline,
                         valueColor: AlwaysStoppedAnimation(
                           progress == 1.0
                               ? AppColors.secondary
@@ -84,7 +84,7 @@ class ChecklistScreen extends ConsumerWidget {
                       '$completed / $total completed',
                       style: Theme.of(
                         context,
-                      ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                      ).textTheme.bodyMedium?.copyWith(color: context.muted),
                     ),
                   ],
                 ),
@@ -119,13 +119,13 @@ class _ChecklistTile extends ConsumerWidget {
           item.title,
           style: TextStyle(
             decoration: item.isCompleted ? TextDecoration.lineThrough : null,
-            color: item.isCompleted ? AppColors.muted : null,
+            color: item.isCompleted ? context.muted : null,
           ),
         ),
         subtitle: item.description != null
             ? Text(
                 item.description!,
-                style: const TextStyle(color: AppColors.muted),
+                style: TextStyle(color: context.muted),
               )
             : null,
         activeColor: AppColors.secondary,

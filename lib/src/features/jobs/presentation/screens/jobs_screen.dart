@@ -43,10 +43,10 @@ class JobsScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.work_outlined,
                     size: 64,
-                    color: AppColors.muted,
+                    color: context.muted,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -58,7 +58,7 @@ class JobsScreen extends ConsumerWidget {
                     'Tap + to add your first job application',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                    ).textTheme.bodyMedium?.copyWith(color: context.muted),
                   ),
                 ],
               ),
@@ -99,7 +99,7 @@ class _JobCard extends ConsumerWidget {
 
   const _JobCard({required this.item});
 
-  Color _statusColor(String status) {
+  Color _statusColor(BuildContext context, String status) {
     switch (status) {
       case 'Accepted':
         return AppColors.secondary;
@@ -110,7 +110,7 @@ class _JobCard extends ConsumerWidget {
       case 'Rejected':
         return AppColors.error;
       default:
-        return AppColors.muted;
+        return context.muted;
     }
   }
 
@@ -152,7 +152,7 @@ class _JobCard extends ConsumerWidget {
                 item.position!,
                 style: Theme.of(
                   context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                ).textTheme.bodyMedium?.copyWith(color: context.muted),
               ),
             ],
             const SizedBox(height: 12),
@@ -163,7 +163,7 @@ class _JobCard extends ConsumerWidget {
                     item.status,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
                   ),
-                  backgroundColor: _statusColor(item.status),
+                  backgroundColor: _statusColor(context, item.status),
                   padding: EdgeInsets.zero,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   visualDensity: VisualDensity.compact,
@@ -173,7 +173,7 @@ class _JobCard extends ConsumerWidget {
                   _formatDate(item.applicationDate),
                   style: Theme.of(
                     context,
-                  ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                  ).textTheme.bodySmall?.copyWith(color: context.muted),
                 ),
               ],
             ),

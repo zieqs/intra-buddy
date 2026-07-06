@@ -85,7 +85,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     textAlign: TextAlign.center,
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                    ).textTheme.bodyMedium?.copyWith(color: context.muted),
                   ),
                   const SizedBox(height: 40),
                   TextFormField(

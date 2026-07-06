@@ -137,9 +137,9 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
   Widget _buildInputBar() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.outline)),
+      decoration: BoxDecoration(
+        color: context.surface,
+        border: Border(top: BorderSide(color: context.outline)),
       ),
       child: SafeArea(
         child: Row(
@@ -154,7 +154,7 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
                     borderSide: BorderSide.none,
                   ),
                   filled: true,
-                  fillColor: AppColors.background,
+                  fillColor: context.background,
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 12,
@@ -211,10 +211,10 @@ class _MessageList extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.chat_outlined,
                   size: 64,
-                  color: AppColors.muted,
+                  color: context.muted,
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -227,7 +227,7 @@ class _MessageList extends ConsumerWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                  ).textTheme.bodyMedium?.copyWith(color: context.muted),
                 ),
               ],
             ),
@@ -265,10 +265,10 @@ class _MessageBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
-            const CircleAvatar(
+            CircleAvatar(
               radius: 16,
-              backgroundColor: AppColors.primaryContainer,
-              child: Icon(Icons.smart_toy, size: 18, color: AppColors.primary),
+              backgroundColor: context.primaryContainer,
+              child: const Icon(Icons.smart_toy, size: 18, color: AppColors.primary),
             ),
             const SizedBox(width: 8),
           ],
@@ -279,19 +279,19 @@ class _MessageBubble extends StatelessWidget {
               ),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: isUser ? AppColors.primary : AppColors.surface,
+                color: isUser ? AppColors.primary : context.surface,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(16),
                   topRight: const Radius.circular(16),
                   bottomLeft: Radius.circular(isUser ? 16 : 4),
                   bottomRight: Radius.circular(isUser ? 4 : 16),
                 ),
-                border: isUser ? null : Border.all(color: AppColors.outline),
+                border: isUser ? null : Border.all(color: context.outline),
               ),
               child: Text(
                 message.content,
                 style: TextStyle(
-                  color: isUser ? Colors.white : AppColors.onSurface,
+                  color: isUser ? Colors.white : context.onSurface,
                 ),
               ),
             ),
@@ -350,7 +350,7 @@ class _SessionDrawer extends ConsumerWidget {
                       child: Text(
                         'No sessions yet',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.muted,
+                          color: context.muted,
                         ),
                       ),
                     );
@@ -363,7 +363,7 @@ class _SessionDrawer extends ConsumerWidget {
                       final isActive = session.id == currentSessionId;
                       return ListTile(
                         selected: isActive,
-                        selectedTileColor: AppColors.primaryContainer.withAlpha(60),
+                        selectedTileColor: Colors.grey.withAlpha(40),
                         title: Text(
                           session.title ?? 'Chat Session',
                           maxLines: 1,

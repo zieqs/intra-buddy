@@ -90,7 +90,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               Center(
                 child: CircleAvatar(
                   radius: 48,
-                  backgroundColor: AppColors.primaryContainer,
+                  backgroundColor: context.primaryContainer,
                   child: Text(
                     _initials(profile.fullName),
                     style: Theme.of(context).textTheme.headlineLarge?.copyWith(
@@ -184,7 +184,7 @@ Widget _profileField({
         label,
         style: Theme.of(
           context,
-        ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+        ).textTheme.bodySmall?.copyWith(color: context.muted),
       ),
     ),
   );

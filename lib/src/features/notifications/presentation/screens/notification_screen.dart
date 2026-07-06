@@ -39,10 +39,10 @@ class NotificationScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.notifications_outlined,
                     size: 64,
-                    color: AppColors.muted,
+                    color: context.muted,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -54,7 +54,7 @@ class NotificationScreen extends ConsumerWidget {
                     "You're all caught up!",
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: AppColors.muted),
+                    ).textTheme.bodyMedium?.copyWith(color: context.muted),
                   ),
                 ],
               ),
@@ -72,7 +72,7 @@ class NotificationScreen extends ConsumerWidget {
                   group.label,
                   style: Theme.of(
                     context,
-                  ).textTheme.titleMedium?.copyWith(color: AppColors.muted),
+                  ).textTheme.titleMedium?.copyWith(color: context.muted),
                 ),
                 const SizedBox(height: 8),
                 ...group.items.map(
@@ -206,7 +206,7 @@ class _NotificationCard extends ConsumerWidget {
                         Text(
                           notification.body!,
                           style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.muted),
+                              ?.copyWith(color: context.muted),
                         ),
                       ],
                       const SizedBox(height: 4),
@@ -214,7 +214,7 @@ class _NotificationCard extends ConsumerWidget {
                         _timeAgo(notification.createdAt),
                         style: Theme.of(
                           context,
-                        ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+                        ).textTheme.bodySmall?.copyWith(color: context.muted),
                       ),
                     ],
                   ),

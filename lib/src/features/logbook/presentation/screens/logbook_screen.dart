@@ -39,10 +39,10 @@ class LogbookScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.assignment_outlined,
                     size: 64,
-                    color: AppColors.muted,
+                    color: context.muted,
                   ),
                   const SizedBox(height: 16),
                   Text(
@@ -75,7 +75,7 @@ class LogbookScreen extends ConsumerWidget {
                         child: LinearProgressIndicator(
                           value: weeks.isEmpty ? 0 : submitted / weeks.length,
                           minHeight: 8,
-                          backgroundColor: AppColors.outline,
+                          backgroundColor: context.outline,
                           valueColor: AlwaysStoppedAnimation(
                             submitted == weeks.length
                                 ? AppColors.secondary
@@ -87,7 +87,7 @@ class LogbookScreen extends ConsumerWidget {
                       Text(
                         '$submitted / ${weeks.length} weeks submitted',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.muted,
+                          color: context.muted,
                         ),
                       ),
                     ],
@@ -117,14 +117,14 @@ class _WeekCard extends ConsumerWidget {
         leading: CircleAvatar(
           backgroundColor: week.isSubmitted
               ? AppColors.secondary
-              : AppColors.outline,
+              : context.outline,
           child: week.isSubmitted
               ? const Icon(Icons.check, color: Colors.white)
               : Text(
                   'W${week.weekNumber}',
-                  style: const TextStyle(
+                  style:                   TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.muted,
+                    color: context.muted,
                   ),
                 ),
         ),
@@ -136,7 +136,7 @@ class _WeekCard extends ConsumerWidget {
           'Ending ${_formatDate(week.weekEndDate)}',
           style: Theme.of(
             context,
-          ).textTheme.bodySmall?.copyWith(color: AppColors.muted),
+          ).textTheme.bodySmall?.copyWith(color: context.muted),
         ),
         trailing: week.isSubmitted
             ? const Icon(Icons.check_circle, color: AppColors.secondary)
