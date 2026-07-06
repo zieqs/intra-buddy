@@ -28,7 +28,7 @@ class PasswordStrengthBar extends StatelessWidget {
   }
 
   Color _color(int segment) {
-    if (segment >= _strength) return Colors.transparent;
+    if (segment > _strength) return Colors.transparent;
     switch (_strength) {
       case 1:
         return AppColors.error;
@@ -43,7 +43,7 @@ class PasswordStrengthBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (password.isEmpty) return const SizedBox.shrink();
+    if (password.length < 6) return const SizedBox.shrink();
 
     return Padding(
       padding: const EdgeInsets.only(top: 4),

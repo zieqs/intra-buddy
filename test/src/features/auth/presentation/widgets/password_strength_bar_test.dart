@@ -43,5 +43,35 @@ void main() {
 
       expect(find.text('Strong'), findsOneWidget);
     });
+
+    testWidgets('shows nothing for 5 chars (short)', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: PasswordStrengthBar(password: 'abcde')),
+        ),
+      );
+
+      expect(find.byType(SizedBox), findsOneWidget);
+    });
+
+    testWidgets('shows medium at 7 chars (boundary)', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: PasswordStrengthBar(password: 'abcdefg')),
+        ),
+      );
+
+      expect(find.text('Medium'), findsOneWidget);
+    });
+
+    testWidgets('shows strong at 10 chars (boundary)', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(body: PasswordStrengthBar(password: 'abcdefghij')),
+        ),
+      );
+
+      expect(find.text('Strong'), findsOneWidget);
+    });
   });
 }
