@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/providers/auth_state_provider.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/signup_screen.dart';
+import '../features/auth/presentation/screens/email_confirmation_screen.dart';
 import '../features/dashboard/presentation/screens/student_shell.dart';
 import '../features/dashboard/presentation/screens/dashboard_home.dart';
 import '../features/checklist/presentation/screens/checklist_screen.dart';
@@ -43,6 +44,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/signup',
         name: 'signup',
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/email-confirmation',
+        name: 'email-confirmation',
+        builder: (context, state) {
+          final email = state.uri.queryParameters['email'] ?? '';
+          return EmailConfirmationScreen(email: email);
+        },
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
