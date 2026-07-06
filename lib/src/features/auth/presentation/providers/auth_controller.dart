@@ -36,6 +36,9 @@ class AuthController extends AsyncNotifier<User?> {
     if (raw.contains('connect') || raw.contains('network') || raw.contains('internet')) {
       return 'Unable to connect. Please check your internet and try again.';
     }
+    if (raw.contains('Database error')) {
+      return 'Could not complete registration due to a server error. Please try again.';
+    }
     return 'Something went wrong. Please try again.';
   }
 
