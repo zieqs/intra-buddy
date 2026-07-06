@@ -23,7 +23,7 @@ class StudentShell extends ConsumerWidget {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
       ),
-      builder: (context) {
+      builder: (sheetContext) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -43,7 +43,7 @@ class StudentShell extends ConsumerWidget {
                   icon: Icons.assignment_outlined,
                   label: 'Logbook Status',
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     context.push('/logbook');
                   },
                 ),
@@ -51,7 +51,7 @@ class StudentShell extends ConsumerWidget {
                   icon: Icons.folder_outlined,
                   label: 'My Documents',
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     context.push('/my-documents');
                   },
                 ),
@@ -59,7 +59,7 @@ class StudentShell extends ConsumerWidget {
                   icon: Icons.person_outlined,
                   label: 'Profile',
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     context.push('/profile');
                   },
                 ),
@@ -67,7 +67,7 @@ class StudentShell extends ConsumerWidget {
                   icon: Icons.settings_outlined,
                   label: 'Settings',
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     context.push('/settings');
                   },
                 ),
@@ -77,7 +77,7 @@ class StudentShell extends ConsumerWidget {
                   label: 'Logout',
                   isDestructive: true,
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(sheetContext);
                     _signOut(context);
                   },
                 ),
