@@ -28,7 +28,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final isOnAuthPage =
           state.matchedLocation == '/login' ||
-          state.matchedLocation == '/signup';
+          state.matchedLocation == '/signup' ||
+          state.matchedLocation.startsWith('/email-confirmation');
 
       if (!isLoggedIn && !isOnAuthPage) return '/login';
       if (isLoggedIn && isOnAuthPage) return '/dashboard';
