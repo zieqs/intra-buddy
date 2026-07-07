@@ -7,9 +7,7 @@ void main() {
     testWidgets('renders correct number of dots', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: StepIndicator(totalSteps: 3, currentStep: 0),
-          ),
+          home: Scaffold(body: StepIndicator(totalSteps: 3, currentStep: 0)),
         ),
       );
 
@@ -19,13 +17,13 @@ void main() {
     testWidgets('highlights active step', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: StepIndicator(totalSteps: 3, currentStep: 1),
-          ),
+          home: Scaffold(body: StepIndicator(totalSteps: 3, currentStep: 1)),
         ),
       );
 
-      final containers = tester.widgetList<Container>(find.byType(Container)).toList();
+      final containers = tester
+          .widgetList<Container>(find.byType(Container))
+          .toList();
       // Second dot (index 1) should be filled/active
       expect(containers[1].decoration, isA<BoxDecoration>());
     });
@@ -33,9 +31,7 @@ void main() {
     testWidgets('shows step label', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: StepIndicator(totalSteps: 2, currentStep: 0),
-          ),
+          home: Scaffold(body: StepIndicator(totalSteps: 2, currentStep: 0)),
         ),
       );
 
@@ -45,13 +41,13 @@ void main() {
     testWidgets('highlights last step when active', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: StepIndicator(totalSteps: 3, currentStep: 2),
-          ),
+          home: Scaffold(body: StepIndicator(totalSteps: 3, currentStep: 2)),
         ),
       );
 
-      final containers = tester.widgetList<Container>(find.byType(Container)).toList();
+      final containers = tester
+          .widgetList<Container>(find.byType(Container))
+          .toList();
       // Last dot should also have a BoxDecoration (active)
       expect(containers[2].decoration, isA<BoxDecoration>());
     });
@@ -59,9 +55,7 @@ void main() {
     testWidgets('renders single step', (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
-          home: Scaffold(
-            body: StepIndicator(totalSteps: 1, currentStep: 0),
-          ),
+          home: Scaffold(body: StepIndicator(totalSteps: 1, currentStep: 0)),
         ),
       );
 

@@ -75,9 +75,7 @@ class ChatProcessingState {
 }
 
 final chatControllerProvider =
-    NotifierProvider<ChatController, ChatProcessingState>(
-      ChatController.new,
-    );
+    NotifierProvider<ChatController, ChatProcessingState>(ChatController.new);
 
 class ChatController extends Notifier<ChatProcessingState> {
   Timer? _thinkingTimer;
@@ -90,7 +88,7 @@ class ChatController extends Notifier<ChatProcessingState> {
   }
 
   static const _fallbackMessage =
-    "I'm sorry, I couldn't find an answer. Please try rephrasing or contact your coordinator.";
+      "I'm sorry, I couldn't find an answer. Please try rephrasing or contact your coordinator.";
 
   Future<void> sendMessage({
     required String sessionId,

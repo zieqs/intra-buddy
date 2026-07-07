@@ -19,9 +19,7 @@ class ChatComposer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.background,
-      ),
+      decoration: BoxDecoration(color: context.background),
       child: SafeArea(
         child: Row(
           children: [
@@ -72,8 +70,8 @@ class ChatComposer extends StatelessWidget {
                   color: isProcessing
                       ? AppColors.error
                       : (controller.text.trim().isEmpty
-                          ? context.surface
-                          : AppColors.primary),
+                            ? context.surface
+                            : AppColors.primary),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -81,8 +79,8 @@ class ChatComposer extends StatelessWidget {
                   color: isProcessing
                       ? AppColors.onError
                       : (controller.text.trim().isEmpty
-                          ? context.muted
-                          : AppColors.onPrimary),
+                            ? context.muted
+                            : AppColors.onPrimary),
                   size: 18,
                 ),
               ),

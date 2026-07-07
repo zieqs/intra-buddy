@@ -24,11 +24,7 @@ class EmailConfirmationScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: AppColors.secondary,
                 ),
-                child: const Icon(
-                  Icons.check,
-                  size: 48,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.check, size: 48, color: Colors.white),
               ),
               const SizedBox(height: 24),
               Text(
@@ -38,24 +34,24 @@ class EmailConfirmationScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'We sent a confirmation link to',
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: context.muted,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(color: context.muted),
               ),
               const SizedBox(height: 4),
               Text(
                 email,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 24),
               Text(
                 'Click the link in your email to activate\nyour account — then sign in to get started.',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: context.muted,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: context.muted),
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -81,9 +77,9 @@ class EmailConfirmationScreen extends StatelessWidget {
               Text(
                 "Didn't receive the email?\nCheck spam or try again",
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: context.muted,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: context.muted),
               ),
             ],
           ),
@@ -93,10 +89,7 @@ class EmailConfirmationScreen extends StatelessWidget {
   }
 
   Future<void> _openMailApp(BuildContext context) async {
-    final uri = Uri(
-      scheme: 'mailto',
-      path: email,
-    );
+    final uri = Uri(scheme: 'mailto', path: email);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri);
     }

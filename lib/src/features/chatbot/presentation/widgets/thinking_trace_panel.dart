@@ -81,10 +81,7 @@ class _ThinkingTracePanelState extends State<ThinkingTracePanel>
         alignment: const Alignment(-1.0, -1.0),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 14,
-          ),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
           decoration: BoxDecoration(
             color: context.chatThinkingBg,
             borderRadius: BorderRadius.circular(10),

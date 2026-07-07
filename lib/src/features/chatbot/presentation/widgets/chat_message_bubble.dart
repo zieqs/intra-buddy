@@ -34,10 +34,7 @@ class ChatMessageBubble extends StatelessWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.of(context).size.width * 0.78,
               ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 16,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
                 color: context.primaryContainer,
                 borderRadius: const BorderRadius.only(
@@ -46,9 +43,7 @@ class ChatMessageBubble extends StatelessWidget {
                   bottomLeft: Radius.circular(18),
                   bottomRight: Radius.circular(4),
                 ),
-                border: Border.all(
-                  color: AppColors.primary.withAlpha(76),
-                ),
+                border: Border.all(color: AppColors.primary.withAlpha(76)),
               ),
               child: DefaultTextStyle(
                 style: TextStyle(
@@ -74,10 +69,7 @@ class ChatMessageBubble extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 9,
-                backgroundColor: AppColors.primary,
-              ),
+              const CircleAvatar(radius: 9, backgroundColor: AppColors.primary),
               const SizedBox(width: 6),
               Text(
                 'INTRA Buddy',

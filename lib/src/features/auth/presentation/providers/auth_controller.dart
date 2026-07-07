@@ -33,7 +33,9 @@ class AuthController extends AsyncNotifier<User?> {
     if (raw.contains('validate email')) {
       return 'Please enter a valid @s.unikl.edu.my email';
     }
-    if (raw.contains('connect') || raw.contains('network') || raw.contains('internet')) {
+    if (raw.contains('connect') ||
+        raw.contains('network') ||
+        raw.contains('internet')) {
       return 'Unable to connect. Please check your internet and try again.';
     }
     if (raw.contains('Database error')) {
@@ -46,15 +48,12 @@ class AuthController extends AsyncNotifier<User?> {
     state = const AsyncLoading();
     final repo = ref.read(authRepositoryProvider);
     final result = await repo.signIn(email: email, password: password);
-    result.fold(
-      (failure) {
-        final message = failure is AuthFailure
-            ? AuthController.mapAuthError(failure.message)
-            : failure.message;
-        state = AsyncError(AuthFailure(message), StackTrace.current);
-      },
-      (user) => state = AsyncData(user),
-    );
+    result.fold((failure) {
+      final message = failure is AuthFailure
+          ? AuthController.mapAuthError(failure.message)
+          : failure.message;
+      state = AsyncError(AuthFailure(message), StackTrace.current);
+    }, (user) => state = AsyncData(user));
   }
 
   Future<void> signUp({
@@ -73,15 +72,12 @@ class AuthController extends AsyncNotifier<User?> {
       studentId: studentId,
       phone: phone,
     );
-    result.fold(
-      (failure) {
-        final message = failure is AuthFailure
-            ? AuthController.mapAuthError(failure.message)
-            : failure.message;
-        state = AsyncError(AuthFailure(message), StackTrace.current);
-      },
-      (user) => state = AsyncData(user),
-    );
+    result.fold((failure) {
+      final message = failure is AuthFailure
+          ? AuthController.mapAuthError(failure.message)
+          : failure.message;
+      state = AsyncError(AuthFailure(message), StackTrace.current);
+    }, (user) => state = AsyncData(user));
   }
 
   Future<void> signOut() async {

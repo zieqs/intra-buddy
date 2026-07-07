@@ -91,10 +91,9 @@ class _ChatbotScreenState extends ConsumerState<ChatbotScreen> {
     if (text.isEmpty || _currentSessionId == null) return;
 
     _sessionsWithActivity.add(_currentSessionId!);
-    ref.read(chatControllerProvider.notifier).sendMessage(
-      sessionId: _currentSessionId!,
-      content: text,
-    );
+    ref
+        .read(chatControllerProvider.notifier)
+        .sendMessage(sessionId: _currentSessionId!, content: text);
     _messageCtrl.clear();
   }
 

@@ -70,10 +70,7 @@ class PasswordStrengthBar extends StatelessWidget {
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 _label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: _color(1),
-                ),
+                style: TextStyle(fontSize: 12, color: _color(1)),
               ),
             ),
         ],

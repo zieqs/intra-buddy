@@ -44,7 +44,8 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    final isNearBottom = _scrollController.position.pixels >=
+    final isNearBottom =
+        _scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 100;
     if (_autoScroll != isNearBottom) {
       setState(() => _autoScroll = isNearBottom);
@@ -67,9 +68,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
   void _startStreaming(String fullContent) {
     _streamDisplayCount = 0;
     _streamedFullContent = fullContent;
-    final interval = Duration(
-      milliseconds: (1000 / 80).round().clamp(10, 200),
-    );
+    final interval = Duration(milliseconds: (1000 / 80).round().clamp(10, 200));
     _streamTimer = Timer.periodic(interval, (_) {
       if (!mounted) {
         _streamTimer?.cancel();
@@ -129,7 +128,8 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
           onNotification: (scroll) {
             if (scroll is ScrollUpdateNotification) {
               if (_scrollController.hasClients) {
-                final nearBottom = _scrollController.position.pixels >=
+                final nearBottom =
+                    _scrollController.position.pixels >=
                     _scrollController.position.maxScrollExtent - 100;
                 _autoScroll = nearBottom;
               }
@@ -161,10 +161,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
     final isUser = msg.role == 'user';
 
     if (isUser) {
-      return ChatMessageBubble(
-        isUser: true,
-        child: Text(msg.content),
-      );
+      return ChatMessageBubble(isUser: true, child: Text(msg.content));
     }
 
     return Column(
@@ -196,10 +193,7 @@ class _ChatMessageListState extends ConsumerState<ChatMessageList> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ThinkingTracePanel(
-            isThinking: false,
-            autoCollapsed: isComplete,
-          ),
+          ThinkingTracePanel(isThinking: false, autoCollapsed: isComplete),
           ChatMessageBubble(
             isUser: false,
             child: isComplete
@@ -221,10 +215,7 @@ class _StreamingDisplay extends StatelessWidget {
   final String displayedText;
   final bool hasMore;
 
-  const _StreamingDisplay({
-    required this.displayedText,
-    required this.hasMore,
-  });
+  const _StreamingDisplay({required this.displayedText, required this.hasMore});
 
   @override
   Widget build(BuildContext context) {
@@ -271,11 +262,7 @@ class _BlinkingCaretState extends State<_BlinkingCaret>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _controller,
-      child: Container(
-        width: 1.5,
-        height: 16,
-        color: AppColors.primary,
-      ),
+      child: Container(width: 1.5, height: 16, color: AppColors.primary),
     );
   }
 }

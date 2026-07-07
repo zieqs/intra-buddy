@@ -169,7 +169,8 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                 ),
                 child: TextField(
                   controller: _searchCtrl,
-                  onChanged: (v) => setState(() => _searchQuery = v.toLowerCase()),
+                  onChanged: (v) =>
+                      setState(() => _searchQuery = v.toLowerCase()),
                   decoration: InputDecoration(
                     hintText: 'Search chats',
                     hintStyle: TextStyle(
@@ -188,10 +189,7 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                       vertical: 12,
                     ),
                   ),
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: context.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 14, color: context.onSurface),
                 ),
               ),
             ),
@@ -205,12 +203,12 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                   final filtered = _searchQuery.isEmpty
                       ? sessions
                       : sessions
-                          .where(
-                            (s) => (s.title ?? '')
-                                .toLowerCase()
-                                .contains(_searchQuery),
-                          )
-                          .toList();
+                            .where(
+                              (s) => (s.title ?? '').toLowerCase().contains(
+                                _searchQuery,
+                              ),
+                            )
+                            .toList();
 
                   if (filtered.isEmpty) {
                     return Center(
@@ -244,7 +242,10 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                   }
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 4,
+                    ),
                     itemCount: filtered.length,
                     itemBuilder: (context, index) {
                       final session = filtered[index];
@@ -269,7 +270,8 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                                 children: [
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           session.title ?? 'Chat Session',
@@ -301,8 +303,10 @@ class _ChatSessionDrawerState extends ConsumerState<ChatSessionDrawer> {
                                       size: 18,
                                       color: context.muted,
                                     ),
-                                    onPressed: () =>
-                                        _confirmDelete(session.id, session.title),
+                                    onPressed: () => _confirmDelete(
+                                      session.id,
+                                      session.title,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
                                       minWidth: 36,

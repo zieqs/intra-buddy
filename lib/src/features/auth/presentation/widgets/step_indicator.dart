@@ -10,7 +10,10 @@ class StepIndicator extends StatelessWidget {
     required this.totalSteps,
     required this.currentStep,
   }) : assert(totalSteps > 0, 'totalSteps must be positive'),
-       assert(currentStep >= 0 && currentStep < totalSteps, 'currentStep out of range');
+       assert(
+         currentStep >= 0 && currentStep < totalSteps,
+         'currentStep out of range',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -50,9 +53,9 @@ class StepIndicator extends StatelessWidget {
         const SizedBox(height: 8),
         Text(
           'Step ${currentStep + 1} of $totalSteps',
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: context.muted,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: context.muted),
         ),
       ],
     );

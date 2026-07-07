@@ -77,7 +77,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ).showSnackBar(SnackBar(content: Text(error.toString())));
         },
         data: (_) {
-          context.go('/email-confirmation?email=${_emailController.text.trim()}');
+          context.go(
+            '/email-confirmation?email=${_emailController.text.trim()}',
+          );
         },
       );
     });
@@ -125,10 +127,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            'About You',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
+          Text('About You', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 16),
           TextFormField(
             controller: _nameController,
@@ -201,10 +200,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             },
           ),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: _nextStep,
-            child: const Text('NEXT'),
-          ),
+          ElevatedButton(onPressed: _nextStep, child: const Text('NEXT')),
         ],
       ),
     );
@@ -229,9 +225,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               prefixIcon: const Icon(Icons.lock_outlined),
               suffixIcon: IconButton(
                 icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 ),
                 onPressed: () {
                   setState(() {
@@ -259,8 +253,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
             decoration: InputDecoration(
               labelText: 'Confirm Password',
               prefixIcon: const Icon(Icons.lock_outlined),
-              suffixIcon: _confirmPasswordController.text.isNotEmpty &&
-                      _confirmPasswordController.text == _passwordController.text
+              suffixIcon:
+                  _confirmPasswordController.text.isNotEmpty &&
+                      _confirmPasswordController.text ==
+                          _passwordController.text
                   ? const Icon(Icons.check_circle, color: AppColors.secondary)
                   : IconButton(
                       icon: Icon(

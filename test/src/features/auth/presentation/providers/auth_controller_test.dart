@@ -5,7 +5,10 @@ void main() {
   group('mapAuthError', () {
     test('maps "User already registered" to friendly message', () {
       final result = AuthController.mapAuthError('User already registered');
-      expect(result, 'An account with this email already exists. Try signing in.');
+      expect(
+        result,
+        'An account with this email already exists. Try signing in.',
+      );
     });
 
     test('maps "Unable to validate email" to friendly message', () {
