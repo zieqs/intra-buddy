@@ -78,8 +78,7 @@ class _ThinkingTracePanelState extends State<ThinkingTracePanel>
       onTap: _toggle,
       child: SizeTransition(
         sizeFactor: _heightFactor,
-        // ignore: deprecated_member_use
-        axisAlignment: -1.0,
+        alignment: const Alignment(-1.0, -1.0),
         child: Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.symmetric(
